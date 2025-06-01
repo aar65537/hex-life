@@ -1,20 +1,23 @@
 <script setup>
-  import { onMounted, useTemplateRef } from "vue"
-  import { draw, initProgram, initBuffers } from "../gl"
+    import { onMounted, useTemplateRef } from "vue"
+    import { draw, initProgram, initBuffers, observeCanvasResize } from "../gl"
 
-  const canvas = useTemplateRef("canvas")
+    const canvas = useTemplateRef("world-canvas")
+    const fps = 24
 
-  const src  = `
-    precision mediump float;
+    const src  = `
+    precision highp float;
+
+    uniform vec2 uResolution;
 
     vec2 resolution = vec2(640, 480);
-    float size = 0.1;
+    float size = 0.075;
     float spacing = 0.005;
-    int worldSize = 5;
+    int worldSize = 10;
 
     struct Cell {
-       int q;
-       int r;
+        int q;
+        int r;
     };
 
     int abs(int x) {
@@ -57,37 +60,50 @@
     }
 
     void main() {
-        vec2 pixel = (2.0 * gl_FragCoord.xy - resolution) / resolution;
+        vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
         Cell cell = pixelToCell(pixel);
-
-        vec3 color = vec3(float(cell.q) / float(worldSize), float(cell.r) / float(worldSize), 0.2);
-
-        gl_FragColor = float(inWorld(cell)) * float(inCell(pixel, cell)) * vec4(color, 1.0);
+        if (inWorld(cell) && inCell(pixel, cell)) {
+            gl_FragColor = vec4(float(cell.q) / float(worldSize), float(cell.r) / float(worldSize), 0.2, 1.0);
+        } else {
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        }
     }
     `
 
-  onMounted(() => {
-    const ctx = canvas.value.getContext("webgl")
+    onMounted(() => {
+        const resolution = {width: canvas.value.width, height: canvas.value.height}
+        observeCanvasResize(canvas.value, resolution)
 
-    if (ctx === null) {
-      alert("Unable to initialize WebGL context.")
-    }
-
-    const program = initProgram(ctx, src)
-    const programInfo = {
-        program: program,
-        attributeLocations: {
-            vertexPosition: ctx.getAttribLocation(program, "aPos")
+        const ctx = canvas.value.getContext("webgl")
+        if (ctx === null) {
+            alert("Unable to initialize WebGL context.")
         }
-    }
-    const buffers = initBuffers(ctx)
-    ctx.clearColor(0.0, 0.0, 0.0, 1.0)
-    draw(ctx, programInfo, buffers)
+        ctx.clearColor(0.0, 0.0, 0.0, 1.0)
 
-  })
+        const buffers = initBuffers(ctx)
+        const program = initProgram(ctx, src)
+        const programInfo = {
+            program: program,
+            attributeLocations: {
+                vertexPosition: ctx.getAttribLocation(program, "aPos")
+            },
+            uniformLocations: {
+                resolution: ctx.getUniformLocation(program, "uResolution")
+            }
+        }
+
+        window.setInterval(draw, 1000.0 / fps, ctx, programInfo, buffers, resolution);
+    })
 </script>
 
 <template>
-  <canvas ref="canvas" width="640" height="480"/>
+    <canvas ref="world-canvas"/>
 </template>
+
+<style scoped>
+    canvas {
+        width: 100vw;
+        height: 100vh;
+    }
+</style>
 
