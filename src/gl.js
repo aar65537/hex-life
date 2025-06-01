@@ -1,10 +1,4 @@
-const vSrc = `
-attribute vec2 aPos;
-
-void main() {
-    gl_Position = vec4(aPos, 0.0, 1.0);
-}
-`
+import { src as vSrc } from "./shaders/vertex"
 
 function loadShader (ctx, type, src) {
     const shader = ctx.createShader(type)
@@ -114,7 +108,6 @@ function onResize (canvas, resolution) {
     }
 }
 
-
 function observeCanvasResize(canvas, resolution) {
     const resizeObserver = new ResizeObserver(onResize(canvas, resolution))
     try {
@@ -122,7 +115,6 @@ function observeCanvasResize(canvas, resolution) {
     } catch (ex) {
         resizeObserver.observe(canvas, {box: "content-box"})
     }
-
 }
 
 export {
