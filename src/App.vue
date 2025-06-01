@@ -1,7 +1,7 @@
 <script setup>
-  import Canvas from "./components/Canvas.vue"
+  import Board from "./components/Board.vue"
 </script>
 
 <template>
-  <Canvas></Canvas>
+  <Board/>
 </template>

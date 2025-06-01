@@ -1,24 +1,18 @@
-const src  = `
+const src  = `#version 300 es
 precision highp float;
+
+out vec4 outColor;
 
 uniform vec2 uResolution;
 
 float size = 0.12;
 float spacing = 0.005;
 int worldSize = 4;
-int maxIndex = 2 * (worldSize - 1);
 
 struct Cell {
     int q;
     int r;
 };
-
-int abs(int x) {
-    if(x < 0) {
-        return -x;
-    }
-    return x;
-}
 
 vec2 cellToPixel(Cell cell) {
     return size * mat2(sqrt(3.0), 0.0, sqrt(3.0) / 2.0, -3.0 / 2.0) * (vec2(cell.q - worldSize + 1, cell.r - worldSize + 1));
@@ -59,9 +53,12 @@ void main() {
     vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
     Cell cell = pixelToCell(pixel);
     if (inWorld(cell) && inCell(pixel, cell)){
-        gl_FragColor = vec4(1.0 * float(abs(cell.q)) / float(maxIndex), 1.0 * float(abs(cell.r)) / float(maxIndex), 0.0, 1.0);
+        int maxIndex = 2 * (worldSize - 1);
+        outColor = vec4(1.0 * float(abs(cell.q)) / float(maxIndex), 1.0 * float(abs(cell.r)) / float(maxIndex), 0.0, 1.0);
     } else {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        outColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
 }
 `
+
+export { src }

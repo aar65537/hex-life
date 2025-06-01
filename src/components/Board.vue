@@ -3,20 +3,20 @@
     import { draw, initProgram, initBuffers, observeCanvasResize } from "../gl"
     import { src as fSrc } from "../shaders/draw"
 
-    const canvas = useTemplateRef("world-canvas")
+    const canvas = useTemplateRef("board")
     const fps = 24
 
     onMounted(() => {
         const resolution = {width: canvas.value.width, height: canvas.value.height}
         observeCanvasResize(canvas.value, resolution)
 
-        const ctx = canvas.value.getContext("webgl")
+        const ctx = canvas.value.getContext("webgl2")
         if (ctx === null) {
             alert("Unable to initialize WebGL context.")
         }
         ctx.clearColor(0.0, 0.0, 0.0, 1.0)
 
-        const buffers = initBuffers(ctx)
+        const vao = initBuffers(ctx)
         const program = initProgram(ctx, fSrc)
         const programInfo = {
             program: program,
@@ -28,12 +28,12 @@
             }
         }
 
-        window.setInterval(draw, 1000.0 / fps, ctx, programInfo, buffers, resolution);
+        window.setInterval(draw, 1000.0 / fps, ctx, programInfo, vao, resolution);
     })
 </script>
 
 <template>
-    <canvas ref="world-canvas"/>
+    <canvas ref="board"/>
 </template>
 
 <style scoped>

@@ -34,40 +34,37 @@ function initProgram(ctx, fSrc) {
 }
 
 function initBuffers(ctx) {
-    const positions = [1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0]
-    const positionBuffer = ctx.createBuffer()
-
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, positionBuffer)
-    ctx.bufferData(ctx.ARRAY_BUFFER, new Float32Array(positions), ctx.STATIC_DRAW)
-
-    return {
-        position: positionBuffer
-    }
-}
-
-function setPositionAttribute(ctx, programInfo, buffers) {
     const numComponents = 2
     const type = ctx.FLOAT
     const normalize = false
     const stride = 0
     const offset = 0
+    const data = [1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0]
 
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.position)
-    ctx.vertexAttribPointer(programInfo.attributeLocations.vertexPosition, numComponents, type, normalize, stride, offset)
-    ctx.enableVertexAttribArray(programInfo.attributeLocations.vertexPosition)
+    const buffer = ctx.createBuffer()
+    const vao = ctx.createVertexArray()
+
+    ctx.bindVertexArray(vao)
+    ctx.enableVertexAttribArray(0)
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, buffer)
+    ctx.bufferData(ctx.ARRAY_BUFFER, new Float32Array(data), ctx.STATIC_DRAW)
+    ctx.vertexAttribPointer(0, numComponents, type, normalize, stride, offset)
+    ctx.bindVertexArray(null)
+
+    return vao
 }
 
 function setResolutionUniform (ctx, programInfo, resolution) {
     ctx.uniform2f(programInfo.uniformLocations.resolution, resolution.width, resolution.height)
 }
 
-function draw(ctx, programInfo, buffers, resolution) {
+function draw(ctx, programInfo, vao, resolution) {
     const offset = 0
     const vertexCount = 4
     ctx.viewport(0, 0, resolution.width, resolution.height)
     ctx.clear(ctx.COLOR_BUFFER_BIT)
     ctx.useProgram(programInfo.program)
-    setPositionAttribute(ctx, programInfo, buffers)
+    ctx.bindVertexArray(vao)
     setResolutionUniform(ctx, programInfo, resolution)
     ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
 }
