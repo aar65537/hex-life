@@ -10,10 +10,10 @@
 
     uniform vec2 uResolution;
 
-    vec2 resolution = vec2(640, 480);
-    float size = 0.075;
+    float size = 0.12;
     float spacing = 0.005;
-    int worldSize = 10;
+    int worldSize = 4;
+    int maxIndex = 2 * (worldSize - 1);
 
     struct Cell {
         int q;
@@ -28,11 +28,11 @@
     }
 
     vec2 cellToPixel(Cell cell) {
-        return mat2(sqrt(3.0), 0.0, sqrt(3.0)/2.0, 3.0/2.0)*vec2(cell.q, cell.r)*size;
+        return size * mat2(sqrt(3.0), 0.0, sqrt(3.0) / 2.0, -3.0 / 2.0) * (vec2(cell.q - worldSize + 1, cell.r - worldSize + 1));
     }
 
     Cell pixelToCell(vec2 pixel) {
-        vec2 frac_cell = mat2(sqrt(3.0)/3.0, 0.0, -1.0/3.0, 2.0/3.0)*pixel/size;
+        vec2 frac_cell = mat2(sqrt(3.0) / 3.0, 0.0, 1.0 / 3.0, -2.0 / 3.0) * pixel / size + float(worldSize - 1);
         int q = int(floor(frac_cell.x + 0.5));
         int r = int(floor(frac_cell.y + 0.5));
         int s = int(floor(-frac_cell.x - frac_cell.y + 0.5));
@@ -51,7 +51,10 @@
     }
 
     bool inWorld(Cell cell) {
-        return abs(cell.q) < worldSize && abs(cell.r) < worldSize && abs(cell.q + cell.r) < worldSize;
+        int q = cell.q - worldSize + 1;
+        int r = cell.r - worldSize + 1;
+        int s = -q - r;
+        return abs(q) < worldSize && abs(r) < worldSize && abs(s) < worldSize;
     }
 
     bool inCell(vec2 pixel, Cell cell) {
@@ -62,10 +65,10 @@
     void main() {
         vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
         Cell cell = pixelToCell(pixel);
-        if (inWorld(cell) && inCell(pixel, cell)) {
-            gl_FragColor = vec4(float(cell.q) / float(worldSize), float(cell.r) / float(worldSize), 0.2, 1.0);
+        if (inWorld(cell) && inCell(pixel, cell)){
+            gl_FragColor = vec4(1.0 * float(abs(cell.q)) / float(maxIndex), 1.0 * float(abs(cell.r)) / float(maxIndex), 0.0, 1.0);
         } else {
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
         }
     }
     `
