@@ -1,3 +1,7 @@
+import { uniformLocations } from "./layout";
+import { initProgram } from "./program";
+import { src as vSrc } from "./vertex"
+
 const src  = `#version 300 es
 precision highp float;
 
@@ -60,5 +64,21 @@ void main() {
     }
 }
 `
+function initDraw(ctx){
+    const program = initProgram(ctx, vSrc, src)
+    uniformLocations.resolution = ctx.getUniformLocation(program, "uResolution")
+    return program
+}
 
-export { src }
+function draw(ctx, program, vao, resolution) {
+    const offset = 0
+    const vertexCount = 4
+    ctx.viewport(0, 0, resolution.width, resolution.height)
+    ctx.clear(ctx.COLOR_BUFFER_BIT)
+    ctx.useProgram(program)
+    ctx.bindVertexArray(vao)
+    ctx.uniform2f(uniformLocations.resolution, resolution.width, resolution.height)
+    ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
+}
+
+export { initDraw, draw }
