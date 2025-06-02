@@ -1,4 +1,4 @@
-const prefix = `
+export const prefix = `
 int worldSize = 4;
 uniform sampler2D cellData;
 
@@ -19,5 +19,3 @@ bool isCellAlive(Cell cell) {
     return texture(cellData, vec2(cell.q, cell.r) / maxIndex).r > 0.5;
 }
 `
-
-export { prefix }

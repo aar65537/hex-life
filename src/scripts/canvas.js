@@ -1,4 +1,6 @@
-function onResize (canvas, resolution) {
+import { resolution } from "./store"
+
+function onResize (canvas) {
     return (entries) => {
         entries.forEach((entry) => {
             let width
@@ -28,19 +30,17 @@ function onResize (canvas, resolution) {
             const displayHeight = Math.round(height * dpr)
             canvas.width = displayWidth
             canvas.height = displayHeight
-            resolution.width = displayWidth
-            resolution.height = displayHeight
+            resolution.value.width = displayWidth
+            resolution.value.height = displayHeight
         })
     }
 }
 
-function observeCanvasResize(canvas, resolution) {
-    const resizeObserver = new ResizeObserver(onResize(canvas, resolution))
+export function observeCanvasResize(canvas) {
+    const resizeObserver = new ResizeObserver(onResize(canvas))
     try {
         resizeObserver.observe(canvas, {box: "device-pixel-content-box"})
     } catch (ex) {
         resizeObserver.observe(canvas, {box: "content-box"})
     }
 }
-
-export { observeCanvasResize }

@@ -1,7 +1,7 @@
 import { prefix } from "./common"
-import { uniformLocations } from "./layout"
-import { initProgram } from "./program"
+import { initProgram } from "./init"
 import { src as vSrc } from "./vertex"
+import { uniformLocations } from "../scripts/store"
 
 const src  = `#version 300 es
 precision mediump float;
@@ -58,25 +58,8 @@ void main() {
     }
 }
 `
-function initDraw(ctx){
+export function initDraw(ctx){
     const program = initProgram(ctx, vSrc, src)
     uniformLocations.resolution = ctx.getUniformLocation(program, "uResolution")
     return program
 }
-
-function draw(ctx, program, vao, cellData, resolution) {
-    const offset = 0
-    const vertexCount = 4
-    ctx.viewport(0, 0, resolution.width, resolution.height)
-    ctx.clear(ctx.COLOR_BUFFER_BIT)
-    ctx.useProgram(program)
-    ctx.bindVertexArray(vao)
-    ctx.bindTexture(ctx.TEXTURE_2D, cellData.getCurrentBuffer())
-    ctx.uniform2f(uniformLocations.resolution, resolution.width, resolution.height)
-    ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
-    ctx.bindTexture(ctx.TEXTURE_2D, null)
-    ctx.bindVertexArray(null)
-    ctx.useProgram(null)
-}
-
-export { initDraw, draw }

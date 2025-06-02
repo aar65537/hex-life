@@ -1,23 +1,22 @@
 <script setup>
     import { onMounted, useTemplateRef } from "vue"
-    import { Game } from "../utils/game"
-    import { observeCanvasResize } from "../utils/canvas"
-    import { fps } from "../utils/store"
+    import { Game } from "../scripts/game"
+    import { observeCanvasResize } from "../scripts/canvas"
+    import { fps, sps } from "../scripts/store"
 
     const canvas = useTemplateRef("board")
 
     onMounted(() => {
-        const resolution = {width: canvas.value.width, height: canvas.value.height}
-        observeCanvasResize(canvas.value, resolution)
+        observeCanvasResize(canvas.value)
 
-        const canvas_ctx = canvas.value.getContext("webgl2")
-        if (canvas_ctx === null) {
+        const ctx = canvas.value.getContext("webgl2")
+        if (ctx === null) {
             alert("Unable to initialize WebGL context.")
         }
 
-        const game = new Game(canvas_ctx, resolution)
+        const game = new Game(ctx)
         window.setInterval(game.draw.bind(game), 1000.0 / fps.value)
-        window.setInterval(game.step.bind(game), 1000.0)
+        window.setInterval(game.step.bind(game), 1000.0 / sps.value)
     })
 </script>
 

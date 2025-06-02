@@ -1,5 +1,5 @@
 import { prefix } from "./common";
-import { initProgram } from "./program";
+import { initProgram } from "./init";
 import { src as vSrc } from "./vertex"
 
 const src = `#version 300 es
@@ -47,25 +47,6 @@ void main() {
 }
 `
 
-function initStep(ctx) {
+export function initStep(ctx) {
     return initProgram(ctx, vSrc, src)
 }
-
-function step(ctx, program, vao, cellData) {
-    const offset = 0
-    const vertexCount = 4
-    ctx.viewport(0, 0, cellData.textureSize, cellData.textureSize)
-    ctx.clear(ctx.COLOR_BUFFER_BIT)
-    ctx.useProgram(program)
-    ctx.bindVertexArray(vao)
-    ctx.bindTexture(ctx.TEXTURE_2D, cellData.getCurrentBuffer())
-    ctx.bindFramebuffer(ctx.FRAMEBUFFER, cellData.getCurrentFB())
-    ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
-    ctx.bindFramebuffer(ctx.FRAMEBUFFER, null)
-    ctx.bindTexture(ctx.TEXTURE_2D, null)
-    ctx.bindVertexArray(null)
-    ctx.useProgram(null)
-    cellData.flip()
-}
-
-export { initStep, step }
