@@ -2,9 +2,9 @@
     import { onMounted, useTemplateRef } from "vue"
     import { Game } from "../utils/game"
     import { observeCanvasResize } from "../utils/canvas"
+    import { fps } from "../utils/store"
 
     const canvas = useTemplateRef("board")
-    const fps = 24
 
     onMounted(() => {
         const resolution = {width: canvas.value.width, height: canvas.value.height}
@@ -16,7 +16,8 @@
         }
 
         const game = new Game(canvas_ctx, resolution)
-        window.setInterval(game.draw.bind(game), 1000.0 / fps);
+        game.step()
+        window.setInterval(game.draw.bind(game), 1000.0 / fps.value);
     })
 </script>
 

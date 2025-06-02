@@ -3,11 +3,12 @@ import { initProgram } from "./program";
 import { src as vSrc } from "./vertex"
 
 const src  = `#version 300 es
-precision highp float;
+precision mediump float;
 
 out vec4 outColor;
 
 uniform vec2 uResolution;
+uniform sampler2D cellData;
 
 float size = 0.12;
 float spacing = 0.005;
@@ -53,12 +54,21 @@ bool inCell(vec2 pixel, Cell cell) {
     return distance(pixel, cellCenter) < (size * sqrt(3.0) / 2.0 - spacing);
 }
 
+bool isCellAlive(Cell cell) {
+    float maxIndex = float(2 * (worldSize - 1));
+    return texture(cellData, vec2(cell.q, cell.r) / maxIndex).r > 0.5;
+}
+
+vec4 cellColor(Cell cell) {
+    float maxIndex = float(2 * (worldSize - 1));
+    return vec4(float(abs(cell.q)) / maxIndex, float(abs(cell.r)) / maxIndex, 0.0, 1.0);
+}
+
 void main() {
     vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
     Cell cell = pixelToCell(pixel);
-    if (inWorld(cell) && inCell(pixel, cell)){
-        int maxIndex = 2 * (worldSize - 1);
-        outColor = vec4(1.0 * float(abs(cell.q)) / float(maxIndex), 1.0 * float(abs(cell.r)) / float(maxIndex), 0.0, 1.0);
+    if (inWorld(cell) && inCell(pixel, cell) && isCellAlive(cell)){
+        outColor = cellColor(cell);
     } else {
         outColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
@@ -70,15 +80,19 @@ function initDraw(ctx){
     return program
 }
 
-function draw(ctx, program, vao, resolution) {
+function draw(ctx, program, vao, cellData, resolution) {
     const offset = 0
     const vertexCount = 4
     ctx.viewport(0, 0, resolution.width, resolution.height)
     ctx.clear(ctx.COLOR_BUFFER_BIT)
     ctx.useProgram(program)
     ctx.bindVertexArray(vao)
+    ctx.bindTexture(ctx.TEXTURE_2D, cellData.front)
     ctx.uniform2f(uniformLocations.resolution, resolution.width, resolution.height)
     ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
+    ctx.bindTexture(ctx.TEXTURE_2D, null)
+    ctx.bindVertexArray(null)
+    ctx.useProgram(null)
 }
 
 export { initDraw, draw }
