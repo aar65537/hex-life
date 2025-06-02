@@ -1,5 +1,6 @@
-import { uniformLocations } from "./layout";
-import { initProgram } from "./program";
+import { prefix } from "./common"
+import { uniformLocations } from "./layout"
+import { initProgram } from "./program"
 import { src as vSrc } from "./vertex"
 
 const src  = `#version 300 es
@@ -8,16 +9,11 @@ precision mediump float;
 out vec4 outColor;
 
 uniform vec2 uResolution;
-uniform sampler2D cellData;
 
 float size = 0.12;
 float spacing = 0.005;
-int worldSize = 4;
 
-struct Cell {
-    int q;
-    int r;
-};
+${prefix}
 
 vec2 cellToPixel(Cell cell) {
     return size * mat2(sqrt(3.0), 0.0, sqrt(3.0) / 2.0, -3.0 / 2.0) * (vec2(cell.q - worldSize + 1, cell.r - worldSize + 1));
@@ -42,21 +38,9 @@ Cell pixelToCell(vec2 pixel) {
     return Cell(q, r);
 }
 
-bool inWorld(Cell cell) {
-    int q = cell.q - worldSize + 1;
-    int r = cell.r - worldSize + 1;
-    int s = -q - r;
-    return abs(q) < worldSize && abs(r) < worldSize && abs(s) < worldSize;
-}
-
 bool inCell(vec2 pixel, Cell cell) {
     vec2 cellCenter = cellToPixel(cell);
     return distance(pixel, cellCenter) < (size * sqrt(3.0) / 2.0 - spacing);
-}
-
-bool isCellAlive(Cell cell) {
-    float maxIndex = float(2 * (worldSize - 1));
-    return texture(cellData, vec2(cell.q, cell.r) / maxIndex).r > 0.5;
 }
 
 vec4 cellColor(Cell cell) {
@@ -87,7 +71,7 @@ function draw(ctx, program, vao, cellData, resolution) {
     ctx.clear(ctx.COLOR_BUFFER_BIT)
     ctx.useProgram(program)
     ctx.bindVertexArray(vao)
-    ctx.bindTexture(ctx.TEXTURE_2D, cellData.front)
+    ctx.bindTexture(ctx.TEXTURE_2D, cellData.getCurrentBuffer())
     ctx.uniform2f(uniformLocations.resolution, resolution.width, resolution.height)
     ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
     ctx.bindTexture(ctx.TEXTURE_2D, null)

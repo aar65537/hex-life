@@ -35,14 +35,59 @@ function initFrameBuffer(ctx, texture) {
     return fb
 }
 
+const Buffers = Object.freeze({
+    LOCAL: Symbol("local"),
+    FRONT: Symbol("front"),
+    BACK: Symbol("back"),
+})
+
 class CellData {
     constructor(ctx) {
         this.textureSize = textureSize()
-        this.local = new Uint8Array(this.textureSize**2).fill(255)
+        this.local = new Uint8Array(this.textureSize**2)
+        this.setCell(3, 3, true)
+        this.setCell(4, 3, true)
+        this.setCell(2, 3, true)
         this.front = initTexture(ctx, this.local)
         this.back = initTexture(ctx, this.local)
         this.frontFB = initFrameBuffer(ctx, this.front)
         this.backFB = initFrameBuffer(ctx, this.back)
+        this.currentBuffer = Buffers.FRONT
+        this.sideBuffer = Buffers.BACK
+    }
+
+    setCell(q, r, state) {
+        this.local[q % this.textureSize + 7 * (r % this.textureSize)] = state ? 255: 0
+    }
+
+    getCell(q, r) {
+        return this.local[q % this.textureSize + 7 * (r % this.textureSize)] > 128
+    }
+
+    getCurrentBuffer() {
+        if(this.currentBuffer == Buffers.LOCAL) {
+            return this.local
+        } else if (this.currentBuffer == Buffers.FRONT) {
+            return this.front
+        } else {
+            return this.back
+        }
+    }
+
+    getCurrentFB() {
+        if(this.sideBuffer == Buffers.LOCAL) {
+            alert("Side buffer must be set to back or front!")
+        } else if (this.sideBuffer == Buffers.FRONT) {
+            return this.frontFB
+        } else {
+            return this.backFB
+        }
+    }
+
+    flip() {
+        const temp = this.currentBuffer
+        this.currentBuffer = this.sideBuffer
+        this.sideBuffer = temp
     }
 }
 

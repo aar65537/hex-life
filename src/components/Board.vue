@@ -16,8 +16,8 @@
         }
 
         const game = new Game(canvas_ctx, resolution)
-        game.step()
-        window.setInterval(game.draw.bind(game), 1000.0 / fps.value);
+        window.setInterval(game.draw.bind(game), 1000.0 / fps.value)
+        window.setInterval(game.step.bind(game), 1000.0)
     })
 </script>
 

@@ -1,3 +1,4 @@
+import { prefix } from "./common";
 import { initProgram } from "./program";
 import { src as vSrc } from "./vertex"
 
@@ -6,10 +7,11 @@ precision mediump float;
 
 out float cellState;
 
-uniform sampler2D cellData;
+${prefix}
 
 void main() {
-    cellState = gl_FragCoord.x / 6.0;
+    Cell cell = Cell(int(gl_FragCoord.x), int(gl_FragCoord.y));
+    cellState = 1.0 - float(isCellAlive(cell));
 }
 `
 
@@ -24,13 +26,14 @@ function step(ctx, program, vao, cellData) {
     ctx.clear(ctx.COLOR_BUFFER_BIT)
     ctx.useProgram(program)
     ctx.bindVertexArray(vao)
-    ctx.bindTexture(ctx.TEXTURE_2D, cellData.back)
-    ctx.bindFramebuffer(ctx.FRAMEBUFFER, cellData.frontFB)
+    ctx.bindTexture(ctx.TEXTURE_2D, cellData.getCurrentBuffer())
+    ctx.bindFramebuffer(ctx.FRAMEBUFFER, cellData.getCurrentFB())
     ctx.drawArrays(ctx.TRIANGLE_STRIP, offset, vertexCount)
     ctx.bindFramebuffer(ctx.FRAMEBUFFER, null)
     ctx.bindTexture(ctx.TEXTURE_2D, null)
     ctx.bindVertexArray(null)
     ctx.useProgram(null)
+    cellData.flip()
 }
 
 export { initStep, step }
