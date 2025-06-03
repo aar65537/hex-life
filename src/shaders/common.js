@@ -1,5 +1,5 @@
 export const prefix = `
-int worldSize = 4;
+int worldSize = 8;
 uniform sampler2D cellData;
 
 struct Cell {
@@ -14,7 +14,7 @@ bool inWorld(Cell cell) {
     return abs(q) < worldSize && abs(r) < worldSize && abs(s) < worldSize;
 }
 
-bool isCellAlive(Cell cell) {
+bool isAlive(Cell cell) {
     float maxIndex = float(2 * (worldSize - 1));
     return texture(cellData, vec2(cell.q, cell.r) / maxIndex).r > 0.5;
 }

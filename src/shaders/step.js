@@ -30,7 +30,7 @@ int sumOfNeighbors(Cell cell) {
     for(int i = 0; i < 6; i++){
         Cell neighborCell = neighbor(i, cell);
         if(inWorld(neighborCell)){
-            sum += isCellAlive(neighborCell) ? 1 : 0; 
+            sum += isAlive(neighborCell) ? 1 : 0; 
         }
     }
     return sum;

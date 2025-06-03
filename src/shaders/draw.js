@@ -10,8 +10,13 @@ out vec4 outColor;
 
 uniform vec2 uResolution;
 
-float size = 0.12;
-float spacing = 0.005;
+float size = 0.075;
+float margin = 0.003;
+float border = 0.003;
+vec4 marginColor = vec4(0.075, 0.115, 0.25, 1);
+vec4 borderColor = vec4(1.0, 0.8, 0.4, 1);
+vec4 aliveColor = vec4(0.9, 0.95, 0.85, 1);
+vec4 deadColor = vec4(0.1, 0.2, 0.35, 1);
 
 ${prefix}
 
@@ -40,7 +45,7 @@ Cell pixelToCell(vec2 pixel) {
 
 bool inCell(vec2 pixel, Cell cell) {
     vec2 cellCenter = cellToPixel(cell);
-    return distance(pixel, cellCenter) < (size * sqrt(3.0) / 2.0 - spacing);
+    return distance(pixel, cellCenter) < (size * sqrt(3.0) / 2.0 - margin);
 }
 
 vec4 cellColor(Cell cell) {
@@ -48,13 +53,28 @@ vec4 cellColor(Cell cell) {
     return vec4(float(abs(cell.q)) / maxIndex, float(abs(cell.r)) / maxIndex, 0.0, 1.0);
 }
 
+vec4 pixelColor(vec2 pixel, Cell cell) {
+    vec2 cellCenter = cellToPixel(cell);
+    float d = distance(pixel, cellCenter);
+    float innerRadius = size * sqrt(3.0) / 2.0;
+    if (d >= innerRadius - margin) {
+        return marginColor;
+    } else if (d >= innerRadius - margin - border) {
+        return borderColor;
+    } else if (isAlive(cell)) {
+        return aliveColor;
+    } else {
+       return deadColor;
+    }
+}
+
 void main() {
     vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
     Cell cell = pixelToCell(pixel);
-    if (inWorld(cell) && inCell(pixel, cell) && isCellAlive(cell)){
-        outColor = cellColor(cell);
+    if (inWorld(cell)) {
+        outColor = pixelColor(pixel, cell);
     } else {
-        outColor = vec4(0.0, 0.0, 0.0, 1.0);
+        outColor = marginColor;
     }
 }
 `

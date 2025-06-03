@@ -13,11 +13,10 @@ export class Game {
 
     constructor(ctx) {
         this.#ctx = ctx
-        this.#ctx.clearColor(0.0, 0.0, 0.0, 1.0)
-        this.#vao = initVao(ctx)
-        this.#cells = new CellData(ctx)
-        this.#stepProgram = initStep(ctx)
-        this.#drawProgram = initDraw(ctx)
+        this.#vao = initVao(this.#ctx)
+        this.#cells = new CellData(this.#ctx)
+        this.#drawProgram = initDraw(this.#ctx)
+        this.#stepProgram = initStep(this.#ctx)
     }
 
     get cells() {
@@ -28,7 +27,6 @@ export class Game {
         const offset = 0
         const vertexCount = 4
         this.#ctx.viewport(0, 0, resolution.value.width, resolution.value.height)
-        this.#ctx.clear(this.#ctx.COLOR_BUFFER_BIT)
         this.#ctx.useProgram(this.#drawProgram)
         this.#ctx.bindVertexArray(this.#vao)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
@@ -43,7 +41,6 @@ export class Game {
         const offset = 0
         const vertexCount = 4
         this.#ctx.viewport(0, 0, this.#cells.textureSize, this.#cells.textureSize)
-        this.#ctx.clear(this.#ctx.COLOR_BUFFER_BIT)
         this.#ctx.useProgram(this.#stepProgram)
         this.#ctx.bindVertexArray(this.#vao)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)

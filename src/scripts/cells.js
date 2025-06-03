@@ -59,11 +59,12 @@ export class CellData {
     initTextures(textureSize) {
         this.#textureSize = textureSize
         this.#localBuffer = new Uint8Array(this.#textureSize**2)
-        this.setCell(3, 3, true)
-        this.setCell(4, 3, true)
-        this.setCell(2, 3, true)
+        const middle = (this.textureSize - 1) / 2
+        this.setCell(middle, middle, true)
+        this.setCell(middle + 1, middle, true)
+        this.setCell(middle - 1, middle, true)
         this.#frontBuffer = initTexture(this.#ctx, this.#localBuffer)
-        this.setCell(3, 3, false)
+        this.setCell(middle, middle, false)
         this.#backBuffer = initTexture(this.#ctx, this.#localBuffer)
         this.#frontFB = initFrameBuffer(this.#ctx, this.#frontBuffer)
         this.#backFB = initFrameBuffer(this.#ctx, this.#backBuffer)
@@ -71,11 +72,11 @@ export class CellData {
     }
 
     setCell(q, r, state) {
-        this.#localBuffer[q % this.#textureSize + 7 * (r % this.#textureSize)] = state ? 255: 0
+        this.#localBuffer[q % this.textureSize + this.textureSize * (r % this.textureSize)] = state ? 255: 0
     }
 
     getCell(q, r) {
-        return this.#localBuffer[q % this.#textureSize + 7 * (r % this.#textureSize)] > 128
+        return this.#localBuffer[q % this.textureSize + this.textureSize * (r % this.textureSize)] > 128
     }
 
     get currentBufferFlag () {
