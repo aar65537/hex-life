@@ -1,5 +1,8 @@
 import { CellData } from "./cells"
-import { resolution, uniformLocations, viewCenter, zoom } from "./store"
+import { 
+    boardSize, resolution, uniformLocations, viewCenter, zoom, size,
+    margin, border, marginColor, borderColor, aliveColor, deadColor
+} from "./store"
 import { initVao } from "../shaders/init"
 import { initDraw } from "../shaders/draw"
 import { initStep } from "../shaders/step"
@@ -93,9 +96,17 @@ export class Game {
         this.#ctx.useProgram(this.#drawProgram)
         this.#ctx.bindVertexArray(this.#vao)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
+        this.#ctx.uniform1i(uniformLocations.drawBoardSize, boardSize.value)
         this.#ctx.uniform2f(uniformLocations.resolution, resolution.value.width, resolution.value.height)
         this.#ctx.uniform2f(uniformLocations.viewCenter, viewCenter.value.x, viewCenter.value.y)
         this.#ctx.uniform1f(uniformLocations.zoom, zoom.value)
+        this.#ctx.uniform1f(uniformLocations.size, size.value)
+        this.#ctx.uniform1f(uniformLocations.margin, margin.value)
+        this.#ctx.uniform1f(uniformLocations.border, border.value)
+        this.#ctx.uniform4f(uniformLocations.marginColor, ...marginColor.value)
+        this.#ctx.uniform4f(uniformLocations.borderColor, ...borderColor.value)
+        this.#ctx.uniform4f(uniformLocations.aliveColor, ...aliveColor.value)
+        this.#ctx.uniform4f(uniformLocations.deadColor, ...deadColor.value)
         this.#ctx.drawArrays(this.#ctx.TRIANGLE_STRIP, offset, vertexCount)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
         this.#ctx.bindVertexArray(null)
@@ -110,6 +121,7 @@ export class Game {
         this.#ctx.bindVertexArray(this.#vao)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#cells.currentFB)
+        this.#ctx.uniform1i(uniformLocations.stepBoardSize, boardSize.value)
         this.#ctx.drawArrays(this.#ctx.TRIANGLE_STRIP, offset, vertexCount)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, null)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)

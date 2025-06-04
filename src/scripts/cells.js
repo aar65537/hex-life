@@ -56,29 +56,6 @@ export class CellData {
         return this.#textureSize
     }
 
-    initTextures(textureSize) {
-        this.#textureSize = textureSize
-        this.#localBuffer = new Uint8Array(this.#textureSize**2)
-        const middle = (this.textureSize - 1) / 2
-        this.setCell(middle, middle, true)
-        this.setCell(middle + 1, middle, true)
-        this.setCell(middle - 1, middle, true)
-        this.#frontBuffer = initTexture(this.#ctx, this.#localBuffer)
-        this.setCell(middle, middle, false)
-        this.#backBuffer = initTexture(this.#ctx, this.#localBuffer)
-        this.#frontFB = initFrameBuffer(this.#ctx, this.#frontBuffer)
-        this.#backFB = initFrameBuffer(this.#ctx, this.#backBuffer)
-        this.#currentBufferFlag = Buffers.FRONT
-    }
-
-    setCell(q, r, state) {
-        this.#localBuffer[q % this.textureSize + this.textureSize * (r % this.textureSize)] = state ? 255: 0
-    }
-
-    getCell(q, r) {
-        return this.#localBuffer[q % this.textureSize + this.textureSize * (r % this.textureSize)] > 128
-    }
-
     get currentBufferFlag () {
         return this.#currentBufferFlag
     }
@@ -103,6 +80,34 @@ export class CellData {
         } else {
             alert("Invalid buffer flag.")
         }
+    }
+
+    initTextures(textureSize) {
+        this.#textureSize = textureSize
+        this.#localBuffer = new Uint8Array(this.#textureSize**2)
+        const middle = (this.textureSize - 1) / 2
+        this.setCell(middle, middle, true)
+        this.setCell(middle + 1, middle, true)
+        this.setCell(middle - 1, middle, true)
+        this.#frontBuffer = initTexture(this.#ctx, this.#localBuffer)
+        this.setCell(middle, middle, false)
+        this.#backBuffer = initTexture(this.#ctx, this.#localBuffer)
+        this.#frontFB = initFrameBuffer(this.#ctx, this.#frontBuffer)
+        this.#backFB = initFrameBuffer(this.#ctx, this.#backBuffer)
+        this.#currentBufferFlag = Buffers.FRONT
+    }
+
+    syncLocal() {
+    }
+
+    setCell(q, r, state) {
+        this.syncLocal()
+        this.#localBuffer[q % this.textureSize + this.textureSize * (r % this.textureSize)] = state ? 255: 0
+    }
+
+    getCell(q, r) {
+        this.syncLocal()
+        return this.#localBuffer[q % this.textureSize + this.textureSize * (r % this.textureSize)] > 128
     }
 
     flip() {
