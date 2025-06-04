@@ -1,5 +1,5 @@
 export const prefix = `
-int worldSize = 8;
+int worldSize = 16;
 uniform sampler2D cellData;
 
 struct Cell {

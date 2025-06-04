@@ -5,5 +5,5 @@
 
 <template>
   <Board/>
-  <Sidebar/>
+  <!-- <Sidebar/> -->
 </template>

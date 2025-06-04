@@ -9,6 +9,8 @@ precision mediump float;
 out vec4 outColor;
 
 uniform vec2 uResolution;
+uniform vec2 viewCenter;
+uniform float zoom;
 
 float size = 0.075;
 float margin = 0.003;
@@ -70,6 +72,7 @@ vec4 pixelColor(vec2 pixel, Cell cell) {
 
 void main() {
     vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
+    pixel = pixel / zoom + viewCenter;
     Cell cell = pixelToCell(pixel);
     if (inWorld(cell)) {
         outColor = pixelColor(pixel, cell);
@@ -81,5 +84,7 @@ void main() {
 export function initDraw(ctx){
     const program = initProgram(ctx, vSrc, src)
     uniformLocations.resolution = ctx.getUniformLocation(program, "uResolution")
+    uniformLocations.viewCenter = ctx.getUniformLocation(program, "viewCenter")
+    uniformLocations.zoom = ctx.getUniformLocation(program, "zoom")
     return program
 }
