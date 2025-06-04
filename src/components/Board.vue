@@ -2,9 +2,38 @@
     import { onMounted, useTemplateRef } from "vue"
     import { Game } from "../scripts/game"
     import { observeCanvasResize } from "../scripts/canvas"
-    import { fps, sps, viewCenter, zoom } from "../scripts/store"
+    import { fps, sps, viewCenter, zoom, size, boardSize, resolution } from "../scripts/store"
 
     const canvas = useTemplateRef("board")
+
+    function pixelToCell(x, y) {
+        // Calculate position in clip space
+        const minRes = Math.min(resolution.value.width, resolution.value.height)
+        const dpi = window.devicePixelRatio
+        x = (2 * x * dpi - resolution.value.width) / minRes
+        y = (resolution.value.height - 2 * y * dpi) / minRes
+        x = x / zoom.value + viewCenter.value.x
+        y = y / zoom.value + viewCenter.value.y
+
+        // Calculate cell coordinates
+        x /= size.value
+        y /= size.value
+        const frac_q = 3**0.5 / 3 * x + y / 3 + boardSize.value - 1
+        const frac_r = -2 / 3 * y + boardSize.value - 1
+        const cell = {q: Math.round(frac_q), r: Math.round(frac_r)}
+        const s = Math.round(-frac_q - frac_r)
+        const q_diff = Math.abs(cell.q - frac_q)
+        const r_diff = Math.abs(cell.r - frac_r)
+        const s_diff = Math.abs(s + frac_q + frac_r)
+
+        if(q_diff > r_diff && q_diff > s_diff) {
+            cell.q = -cell.r - s
+        } else if(r_diff > s_diff) {
+            cell.r = -cell.q - s
+        }
+
+        return cell
+    }
 
     onMounted(() => {
         observeCanvasResize(canvas.value)
@@ -19,6 +48,10 @@
 
         canvas.value.addEventListener("mousedown", event => {
             console.log(event)
+            if(event.buttons == 1) {
+                const cell = pixelToCell(event.layerX, event.layerY)
+                game.cells.toggleCell(cell)
+            }
         })
 
         canvas.value.addEventListener("keyup", event => {
