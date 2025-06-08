@@ -1,36 +1,3 @@
-import { textureSize } from "./store";
-
-function initTexture(ctx, data) {
-    const alignment = 1
-    const level = 0
-    const internalFormat = ctx.R8
-    const width = textureSize.value
-    const height = textureSize.value
-    const border = 0
-    const format = ctx.RED
-    const type = ctx.UNSIGNED_BYTE
-
-    const texture = ctx.createTexture()
-    ctx.bindTexture(ctx.TEXTURE_2D, texture)
-    ctx.pixelStorei(ctx.UNPACK_ALIGNMENT, alignment)
-    ctx.texImage2D(ctx.TEXTURE_2D, level, internalFormat, width, height, border, format, type, data)
-    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST)
-    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST)
-    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, ctx.CLAMP_TO_EDGE)
-    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.CLAMP_TO_EDGE)
-    ctx.bindTexture(ctx.TEXTURE_2D, null)
-    return texture
-}
-
-function initFrameBuffer(ctx, texture) {
-    const level = 0
-    const fb = ctx.createFramebuffer()
-    ctx.bindFramebuffer(ctx.FRAMEBUFFER, fb)
-    ctx.framebufferTexture2D(ctx.FRAMEBUFFER, ctx.COLOR_ATTACHMENT0, ctx.TEXTURE_2D, texture, level)
-    ctx.bindFramebuffer(ctx.FRAMEBUFFER, null)
-    return fb
-}
-
 const Buffers = Object.freeze({
     LOCAL: Symbol("local"),
     FRONT: Symbol("front"),
@@ -49,7 +16,13 @@ export class CellData {
 
     constructor(ctx) {
         this.#ctx = ctx
-        this.initTextures(textureSize.value)
+        this.#textureSize = this.#ctx.getParameter(this.#ctx.MAX_TEXTURE_SIZE)
+        this.#localBuffer = new Uint8Array(this.#textureSize**2)
+        this.#frontBuffer = this.#initTexture()
+        this.#backBuffer = this.#initTexture()
+        this.#frontFB = this.#initFrameBuffer(this.#frontBuffer)
+        this.#backFB = this.#initFrameBuffer(this.#backBuffer)
+        this.#currentBufferFlag = Buffers.FRONT
     }
 
     get textureSize() {
@@ -82,16 +55,6 @@ export class CellData {
         }
     }
 
-    initTextures(textureSize) {
-        this.#textureSize = textureSize
-        this.#localBuffer = new Uint8Array(this.#textureSize**2)
-        this.#frontBuffer = initTexture(this.#ctx, this.#localBuffer)
-        this.#backBuffer = initTexture(this.#ctx, this.#localBuffer)
-        this.#frontFB = initFrameBuffer(this.#ctx, this.#frontBuffer)
-        this.#backFB = initFrameBuffer(this.#ctx, this.#backBuffer)
-        this.#currentBufferFlag = Buffers.FRONT
-    }
-
     syncLocal() {
         if (this.#currentBufferFlag === Buffers.LOCAL) {
             return
@@ -118,8 +81,8 @@ export class CellData {
             const alignment = 1
             const level = 0
             const internalFormat = this.#ctx.R8
-            const width = textureSize.value
-            const height = textureSize.value
+            const width = this.textureSize
+            const height = this.textureSize
             const border = 0
             const format = this.#ctx.RED
             const type = this.#ctx.UNSIGNED_BYTE
@@ -134,12 +97,12 @@ export class CellData {
 
     setCell(cell, state) {
         this.syncLocal()
-        this.#localBuffer[cell.q % this.textureSize + this.textureSize * (cell.r % this.textureSize)] = state ? 255: 0
+        this.#localBuffer[cell] = state ? 255: 0
     }
 
     getCell(cell) {
         this.syncLocal()
-        return this.#localBuffer[cell.q % this.textureSize + this.textureSize * (cell.r % this.textureSize)] > 128
+        return this.#localBuffer[cell] > 128
     }
 
     toggleCell(cell) {
@@ -154,5 +117,41 @@ export class CellData {
         } else {
             alert("Invalid buffer flag.")
         }
+    }
+
+    #initTexture() {
+        const ctx = this.#ctx
+        const alignment = 1
+        const level = 0
+        const internalFormat = ctx.R8
+        const width = this.#textureSize
+        const height = this.#textureSize
+        const border = 0
+        const format = ctx.RED
+        const type = ctx.UNSIGNED_BYTE
+
+        const texture = ctx.createTexture()
+        ctx.bindTexture(ctx.TEXTURE_2D, texture)
+        ctx.pixelStorei(ctx.UNPACK_ALIGNMENT, alignment)
+        ctx.texImage2D(
+            ctx.TEXTURE_2D, level, internalFormat, width,
+            height, border, format, type, this.#localBuffer
+        )
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, ctx.CLAMP_TO_EDGE)
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.CLAMP_TO_EDGE)
+        ctx.bindTexture(ctx.TEXTURE_2D, null)
+        return texture
+    }
+
+    #initFrameBuffer(texture) {
+        const ctx = this.#ctx
+        const level = 0
+        const fb = ctx.createFramebuffer()
+        ctx.bindFramebuffer(ctx.FRAMEBUFFER, fb)
+        ctx.framebufferTexture2D(ctx.FRAMEBUFFER, ctx.COLOR_ATTACHMENT0, ctx.TEXTURE_2D, texture, level)
+        ctx.bindFramebuffer(ctx.FRAMEBUFFER, null)
+        return fb
     }
 }

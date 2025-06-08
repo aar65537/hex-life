@@ -2,7 +2,7 @@
     import { onMounted, useTemplateRef } from "vue"
     import { Game } from "../scripts/game"
     import { observeCanvasResize } from "../scripts/canvas"
-    import { fps, sps, viewCenter, zoom, size, boardSize, resolution } from "../scripts/store"
+    import { fps, sps, viewCenter, zoom, size, resolution, cellCount, qStep } from "../scripts/store"
 
     const canvas = useTemplateRef("board")
 
@@ -15,24 +15,31 @@
         x = x / zoom.value + viewCenter.value.x
         y = y / zoom.value + viewCenter.value.y
 
-        // Calculate cell coordinates
+        // Calculate cube coordinates
         x /= size.value
         y /= size.value
-        const frac_q = 3**0.5 / 3 * x + y / 3 + boardSize.value - 1
-        const frac_r = -2 / 3 * y + boardSize.value - 1
-        const cell = {q: Math.round(frac_q), r: Math.round(frac_r)}
-        const s = Math.round(-frac_q - frac_r)
-        const q_diff = Math.abs(cell.q - frac_q)
-        const r_diff = Math.abs(cell.r - frac_r)
-        const s_diff = Math.abs(s + frac_q + frac_r)
+        const qFrac = x * 3**0.5 / 3 + y / 3
+        const rFrac = -y * 2 / 3
+        const sFrac = -qFrac - rFrac
+        var q = Math.round(qFrac)
+        var r = Math.round(rFrac)
+        var s = Math.round(sFrac)
 
-        if(q_diff > r_diff && q_diff > s_diff) {
-            cell.q = -cell.r - s
-        } else if(r_diff > s_diff) {
-            cell.r = -cell.q - s
+        // Round cube coordinates
+        const qDiff = Math.abs(q - qFrac)
+        const rDiff = Math.abs(r - rFrac)
+        const sDiff = Math.abs(s - sFrac)
+        if(qDiff > rDiff && qDiff > sDiff) {
+            q = -r - s
+        } else if(rDiff > sDiff) {
+            r = -q - s
+        } else {
+            s = -q - r
         }
+        console.log({q, r, s})
 
-        return cell
+        // Calculate cell index
+        return (q - r * qStep.value).mod(cellCount.value)
     }
 
     onMounted(() => {
@@ -50,6 +57,7 @@
             console.log(event)
             if(event.buttons == 1) {
                 const cell = pixelToCell(event.layerX, event.layerY)
+                console.log(cell)
                 game.cells.toggleCell(cell)
             }
         })
