@@ -3,8 +3,9 @@ import { ref, computed } from "vue";
 export const attributeLocations = {position: 0}
 export const uniformLocations = {}
 
-export const boardSize = ref(16)
+export const boardSize = ref(4)
 export const textureSize = computed(() => 2 * boardSize.value - 1)
+export const wrap = ref(true)
 export const resolution = ref({width: 1, height: 1})
 export const viewCenter = ref({x: 0, y: 0})
 export const zoom = ref(1.0)

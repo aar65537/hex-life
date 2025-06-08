@@ -1,5 +1,6 @@
 export const prefix = `
 uniform int boardSize;
+uniform int wrap;
 uniform sampler2D cellData;
 
 bool inWorld(ivec2 cell) {

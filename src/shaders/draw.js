@@ -78,6 +78,7 @@ void main() {
 export function initDraw(ctx){
     const program = initProgram(ctx, vSrc, src)
     uniformLocations.drawBoardSize = ctx.getUniformLocation(program, "boardSize")
+    uniformLocations.drawWrap = ctx.getUniformLocation(program, "wrap")
     uniformLocations.resolution = ctx.getUniformLocation(program, "uResolution")
     uniformLocations.viewCenter = ctx.getUniformLocation(program, "viewCenter")
     uniformLocations.zoom = ctx.getUniformLocation(program, "zoom")

@@ -39,5 +39,6 @@ void main() {
 export function initStep(ctx) {
     const program = initProgram(ctx, vSrc, src)
     uniformLocations.stepBoardSize = ctx.getUniformLocation(program, "boardSize")
+    uniformLocations.stepWrap = ctx.getUniformLocation(program, "wrap")
     return program
 }

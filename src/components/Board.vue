@@ -63,6 +63,7 @@
                 case "h":
                     viewCenter.value.x = 0
                     viewCenter.value.y = 0
+                    zoom.value = 1
                     break
                 default:
                     break

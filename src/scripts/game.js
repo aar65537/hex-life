@@ -1,7 +1,8 @@
 import { CellData } from "./cells"
 import { 
     boardSize, resolution, uniformLocations, viewCenter, zoom, size,
-    margin, border, marginColor, borderColor, aliveColor, deadColor
+    margin, border, marginColor, borderColor, aliveColor, deadColor,
+    wrap
 } from "./store"
 import { initVao } from "../shaders/init"
 import { initDraw } from "../shaders/draw"
@@ -98,6 +99,7 @@ export class Game {
         this.cells.syncGPU()
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
         this.#ctx.uniform1i(uniformLocations.drawBoardSize, boardSize.value)
+        this.#ctx.uniform1i(uniformLocations.drawWrap, wrap.value)
         this.#ctx.uniform2f(uniformLocations.resolution, resolution.value.width, resolution.value.height)
         this.#ctx.uniform2f(uniformLocations.viewCenter, viewCenter.value.x, viewCenter.value.y)
         this.#ctx.uniform1f(uniformLocations.zoom, zoom.value)
@@ -124,6 +126,7 @@ export class Game {
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#cells.currentFB)
         this.#ctx.uniform1i(uniformLocations.stepBoardSize, boardSize.value)
+        this.#ctx.uniform1i(uniformLocations.stepWrap, wrap.value)
         this.#ctx.drawArrays(this.#ctx.TRIANGLE_STRIP, offset, vertexCount)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, null)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
