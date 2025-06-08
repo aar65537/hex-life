@@ -1,16 +1,25 @@
 export const prefix = `
 uniform int boardSize;
-uniform int wrap;
 uniform sampler2D cellData;
 
-bool inWorld(ivec2 cell) {
-    cell -= boardSize - 1;
-    int s = abs(cell.x + cell.y);
-    cell = abs(cell);
-    return cell.x < boardSize && cell.y < boardSize && s < boardSize;
+int cellCount() {
+    return 3 * boardSize * boardSize - 3 * boardSize + 1;
 }
 
-bool isAlive(ivec2 cell) {
-    return float(texelFetch(cellData, cell, 0)) > 0.5;
+int qStep() {
+    return 3 * boardSize - 2;
+}
+
+int imod(int a, int b) {
+    if(a>=0) {
+        return a % b;
+    }
+    return (b - ((-a) % b)) % b;
+}
+
+bool getCell(int index) {
+    int width = textureSize(cellData, 0).x;
+    ivec2 texCoord = ivec2(imod(index, width), index / width);
+    return texelFetch(cellData, texCoord, 0).r > 0.5;
 }
 `

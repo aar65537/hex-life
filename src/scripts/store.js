@@ -6,6 +6,7 @@ export const uniformLocations = {}
 export const boardSize = ref(3)
 export const cellCount = computed(() => 3 * boardSize.value ** 2 - 3 * boardSize.value + 1)
 export const qStep = computed(() => 3 * boardSize.value - 2)
+export const mirror = ref(true)
 export const wrap = ref(true)
 export const resolution = ref({width: 1, height: 1})
 export const viewCenter = ref({x: 0, y: 0})
