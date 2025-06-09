@@ -33,13 +33,7 @@ export class CellData {
 
     constructor(ctx) {
         this.#ctx = ctx
-        this.#textureSize = nextPowerOfTwo(cellCount.value**0.5)
-        this.#localBuffer = new Uint8Array(this.#textureSize**2)
-        this.#frontBuffer = this.#initTexture()
-        this.#backBuffer = this.#initTexture()
-        this.#frontFB = this.#initFrameBuffer(this.#frontBuffer)
-        this.#backFB = this.#initFrameBuffer(this.#backBuffer)
-        this.#currentBufferFlag = Buffers.FRONT
+        this.#init()
     }
 
     get currentBufferFlag () {
@@ -140,6 +134,28 @@ export class CellData {
 
     viewport() {
         this.#ctx.viewport(0, 0, this.#width, this.#height)
+    }
+
+    delete() {
+        this.#ctx.deleteFramebuffer(this.#frontFB)
+        this.#ctx.deleteFramebuffer(this.#backFB)
+        this.#ctx.deleteTexture(this.#frontBuffer)
+        this.#ctx.deleteTexture(this.#backBuffer)
+    }
+
+    resize() {
+        this.delete()
+        this.#init()
+    }
+
+    #init() {
+        this.#textureSize = nextPowerOfTwo(cellCount.value**0.5)
+        this.#localBuffer = new Uint8Array(this.#textureSize**2)
+        this.#frontBuffer = this.#initTexture()
+        this.#backBuffer = this.#initTexture()
+        this.#frontFB = this.#initFrameBuffer(this.#frontBuffer)
+        this.#backFB = this.#initFrameBuffer(this.#backBuffer)
+        this.#currentBufferFlag = Buffers.FRONT
     }
 
     #initTexture() {

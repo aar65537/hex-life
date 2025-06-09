@@ -30,10 +30,6 @@ export class Game {
         this.#stepping = false
     }
 
-    destructor() {
-        console.log("destructing game")
-    }
-
     get cells() {
         return this.#cells
     }
@@ -118,5 +114,14 @@ export class Game {
         this.#vao.unbind()
         this.#stepProgram.unbind()
         this.cells.flip()
+    }
+
+    delete() {
+        this.stopDrawing()
+        this.stopStepping()
+        this.#vao.delete()
+        this.#cells.delete()
+        this.#drawProgram.delete()
+        this.#stepProgram.delete()
     }
 }

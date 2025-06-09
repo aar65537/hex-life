@@ -1,10 +1,11 @@
 <script setup>
-    import { onMounted, useTemplateRef } from "vue"
+    import { onMounted, onUnmounted, useTemplateRef, watch } from "vue"
     import { fps, sps, viewCenter, zoom, size, resolution, cellCount, qStep } from "@/store"
     import { Game } from "@/scripts/game"
     import { observeCanvasResize } from "@/scripts/canvas"
 
     const canvas = useTemplateRef("board")
+    var game
 
     function pixelToCell(x, y) {
         // Calculate position in clip space
@@ -49,9 +50,13 @@
         if (ctx === null) {
             alert("Unable to initialize WebGL context.")
         }
-        const game = new Game(ctx)
+        game = new Game(ctx)
         game.startDrawing(fps.value)
         game.startStepping(sps.value)
+
+        watch(cellCount, () => {
+            game.cells.resize()
+        })
 
         canvas.value.addEventListener("mousedown", event => {
             console.log(event)
@@ -105,6 +110,10 @@
                     break
             }
         })
+    })
+
+    onUnmounted(() => {
+        game.delete()
     })
 </script>
 

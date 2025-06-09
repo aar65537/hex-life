@@ -44,4 +44,8 @@ export class Program {
     unbind() {
         this.#ctx.useProgram(null)
     }
+
+    delete() {
+        this.#ctx.deleteProgram(this.#program)
+    }
 }

@@ -33,4 +33,9 @@ export class Vao {
     unbind() {
         this.#ctx.bindVertexArray(null)
     }
+
+    delete() {
+        this.#ctx.deleteVertexArray(this.#vao)
+        this.#ctx.deleteBuffer(this.#buffer)
+    }
 }
