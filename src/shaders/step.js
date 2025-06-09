@@ -1,6 +1,6 @@
-import { prefix } from "./common";
-import { Uniform } from "../scripts/uniform";
-import { boardSize, wrap } from "@/scripts/store";
+import { boardSize, wrap } from "@/store";
+import { prefix } from "@/shaders/common";
+import { Uniform } from "@/scripts/uniform";
 
 export const uniforms = [
     new Uniform("boardSize", boardSize, "int"),

@@ -1,8 +1,8 @@
 <script setup>
     import { onMounted, useTemplateRef } from "vue"
-    import { Game } from "../scripts/game"
-    import { observeCanvasResize } from "../scripts/canvas"
-    import { fps, sps, viewCenter, zoom, size, resolution, cellCount, qStep } from "../scripts/store"
+    import { fps, sps, viewCenter, zoom, size, resolution, cellCount, qStep } from "@/store"
+    import { Game } from "@/scripts/game"
+    import { observeCanvasResize } from "@/scripts/canvas"
 
     const canvas = useTemplateRef("board")
 

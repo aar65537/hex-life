@@ -1,10 +1,10 @@
-import { CellData } from "./cells"
-import { resolution } from "./store"
-import { Vao } from "./vao"
-import { Program } from "./program"
-import { uniforms as drawUniforms, src as drawSrc } from "../shaders/draw"
-import { uniforms as stepUniforms, src as stepSrc  } from "../shaders/step"
-import { src as vertexSrc } from "../shaders/vertex"
+import { resolution } from "@/store"
+import { CellData } from "@/scripts/cells"
+import { Program } from "@/scripts/program"
+import { Vao } from "@/scripts/vao"
+import { src as drawSrc, uniforms as drawUniforms } from "@/shaders/draw"
+import { src as stepSrc, uniforms as stepUniforms } from "@/shaders/step"
+import { src as vertexSrc } from "@/shaders/vertex"
 
 const offset = 0
 const vertexCount = 4

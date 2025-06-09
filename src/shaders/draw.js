@@ -1,9 +1,9 @@
-import { prefix } from "./common"
-import { Uniform } from "@/scripts/uniform"
 import { 
     border, margin, size, zoom, boardSize, mirror, resolution,
     viewCenter, aliveColor, borderColor, deadColor, marginColor,
-} from "@/scripts/store"
+} from "@/store"
+import { Uniform } from "@/scripts/uniform"
+import { prefix } from "@/shaders/common"
 
 export const uniforms = [
     new Uniform("border", border, "float"),

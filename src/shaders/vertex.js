@@ -1,4 +1,4 @@
-import { attributeLocations } from "../scripts/store"
+import { attributeLocations } from "@/store"
 
 export const src = `#version 300 es
 layout(location = ${ attributeLocations.position }) in vec2 aPos;

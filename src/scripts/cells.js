@@ -1,4 +1,4 @@
-import { cellCount } from "./store"
+import { cellCount } from "@/store"
 
 const alignment = 1
 const border = 0

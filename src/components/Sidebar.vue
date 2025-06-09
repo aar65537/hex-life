@@ -1,5 +1,5 @@
 <script setup>
-    import { boardSize } from "@/scripts/store";
+    import { boardSize } from "@/store";
 </script>
 <template>
     <div class="sidebar">

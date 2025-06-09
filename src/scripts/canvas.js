@@ -1,4 +1,4 @@
-import { resolution } from "./store"
+import { resolution } from "@/store"
 
 function onResize (canvas) {
     return (entries) => {

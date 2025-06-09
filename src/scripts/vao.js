@@ -1,4 +1,4 @@
-import { attributeLocations } from "./store"
+import { attributeLocations } from "@/store"
 
 export class Vao {
     #ctx
