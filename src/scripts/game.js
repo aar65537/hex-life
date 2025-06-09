@@ -2,12 +2,15 @@ import { CellData } from "./cells"
 import { 
     boardSize, resolution, uniformLocations, viewCenter, zoom, size,
     margin, border, marginColor, borderColor, aliveColor, deadColor,
-    wrap, cellCount, mirror
+    wrap, mirror
 } from "./store"
 import { initVao } from "../shaders/init"
 import { initDraw } from "../shaders/draw"
 import { initStep } from "../shaders/step"
 
+const offset = 0
+const vertexCount = 4
+ 
 export class Game {
     #ctx
     #vao
@@ -46,9 +49,10 @@ export class Game {
     }
 
     startDrawing(fps) {
-        if(!this.drawing) {
-            this.#drawingID = window.setInterval(this.draw.bind(this), 1000.0 / fps)
+        if(this.drawing) {
+            this.stopDrawing()
         }
+        this.#drawingID = window.setInterval(this.draw.bind(this), 1000.0 / fps)
         this.#drawing = true
     }
 
@@ -69,9 +73,10 @@ export class Game {
     }
 
     startStepping(sps) {
-        if(!this.stepping) {
-            this.#steppingID = window.setInterval(this.step.bind(this), 1000.0 / sps)
+        if(this.stepping) {
+            this.stopStepping()
         }
+        this.#steppingID = window.setInterval(this.step.bind(this), 1000.0 / sps)
         this.#stepping = true
     }
 
@@ -91,13 +96,11 @@ export class Game {
     }
 
     draw() {
-        const offset = 0
-        const vertexCount = 4
         this.#ctx.viewport(0, 0, resolution.value.width, resolution.value.height)
         this.#ctx.useProgram(this.#drawProgram)
         this.#ctx.bindVertexArray(this.#vao)
         this.cells.syncGPU()
-        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.cells.currentBuffer)
         this.#ctx.uniform1i(uniformLocations.drawBoardSize, boardSize.value)
         this.#ctx.uniform1i(uniformLocations.mirror, mirror.value)
         this.#ctx.uniform2f(uniformLocations.resolution, resolution.value.width, resolution.value.height)
@@ -117,16 +120,12 @@ export class Game {
     }
 
     step() {
-        const offset = 0
-        const vertexCount = 4
-        const width = cellCount.value < this.#cells.textureSize ? cellCount.value: this.#cells.textureSize
-        const height = cellCount.value / this.#cells.textureSize + 1
-        this.#ctx.viewport(0, 0, width, height)
+        this.cells.viewport()
         this.#ctx.useProgram(this.#stepProgram)
         this.#ctx.bindVertexArray(this.#vao)
         this.cells.syncGPU()
-        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#cells.currentBuffer)
-        this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#cells.currentFB)
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.cells.currentBuffer)
+        this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.cells.currentFB)
         this.#ctx.uniform1i(uniformLocations.stepBoardSize, boardSize.value)
         this.#ctx.uniform1i(uniformLocations.wrap, wrap.value)
         this.#ctx.drawArrays(this.#ctx.TRIANGLE_STRIP, offset, vertexCount)
@@ -134,6 +133,6 @@ export class Game {
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
         this.#ctx.bindVertexArray(null)
         this.#ctx.useProgram(null)
-        this.#cells.flip()
+        this.cells.flip()
     }
 }

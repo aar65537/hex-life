@@ -118,5 +118,9 @@
         width: 100%;
         height: 100%;
     }
+
+    canvas:focus {
+        outline: none;
+    }
 </style>
 

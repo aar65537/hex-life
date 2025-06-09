@@ -1,3 +1,9 @@
+import { cellCount } from "./store"
+
+const alignment = 1
+const border = 0
+const level = 0
+
 const Buffers = Object.freeze({
     LOCAL: Symbol("local"),
     FRONT: Symbol("front"),
@@ -23,10 +29,6 @@ export class CellData {
         this.#frontFB = this.#initFrameBuffer(this.#frontBuffer)
         this.#backFB = this.#initFrameBuffer(this.#backBuffer)
         this.#currentBufferFlag = Buffers.FRONT
-    }
-
-    get textureSize() {
-        return this.#textureSize
     }
 
     get currentBufferFlag () {
@@ -55,44 +57,50 @@ export class CellData {
         }
     }
 
+    get #width() {
+        return cellCount.value < this.#textureSize ? cellCount.value: this.#textureSize
+    }
+
+    get #height() {
+        return cellCount.value / this.#textureSize + 1
+    }
+
+    get #format() {
+        return this.#ctx.RED
+    }
+
+    get #internalFormat() {
+        return this.#ctx.R8
+     }
+
+    get #type() {
+        return this.#ctx.UNSIGNED_BYTE
+    }
+
     syncLocal() {
         if (this.#currentBufferFlag === Buffers.LOCAL) {
             return
         }
-
         if(this.#currentBufferFlag === Buffers.FRONT) {
             this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#frontFB)
         } else if(this.#currentBufferFlag === Buffers.BACK) {
             this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#backFB)
         }
-
-        const alignment = 1
-        const format = this.#ctx.RED
-        const type = this.#ctx.UNSIGNED_BYTE
-
         this.#ctx.pixelStorei(this.#ctx.PACK_ALIGNMENT, alignment)
-        this.#ctx.readPixels(0, 0, this.textureSize, this.textureSize, format, type, this.#localBuffer)
+        this.#ctx.readPixels(0, 0, this.#width, this.#height, this.#format, this.#type, this.#localBuffer)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, null)
         this.#currentBufferFlag = Buffers.LOCAL
     }
 
     syncGPU() {
-        if(this.#currentBufferFlag === Buffers.LOCAL){
-            const alignment = 1
-            const level = 0
-            const internalFormat = this.#ctx.R8
-            const width = this.textureSize
-            const height = this.textureSize
-            const border = 0
-            const format = this.#ctx.RED
-            const type = this.#ctx.UNSIGNED_BYTE
-
-            this.#ctx.pixelStorei(this.#ctx.UNPACK_ALIGNMENT, alignment)
-            this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#frontBuffer)
-            this.#ctx.texImage2D(this.#ctx.TEXTURE_2D, level, internalFormat, width, height, border, format, type, this.#localBuffer)
-            this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
-            this.#currentBufferFlag = Buffers.FRONT
+        if(this.#currentBufferFlag !== Buffers.LOCAL){
+            return
         }
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.#frontBuffer)
+        this.#ctx.pixelStorei(this.#ctx.UNPACK_ALIGNMENT, alignment)
+        this.#ctx.texSubImage2D(this.#ctx.TEXTURE_2D, level, 0, 0, this.#width, this.#height, this.#format, this.#type, this.#localBuffer)
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
+        this.#currentBufferFlag = Buffers.FRONT
     }
 
     setCell(cell, state) {
@@ -119,39 +127,31 @@ export class CellData {
         }
     }
 
-    #initTexture() {
-        const ctx = this.#ctx
-        const alignment = 1
-        const level = 0
-        const internalFormat = ctx.R8
-        const width = this.#textureSize
-        const height = this.#textureSize
-        const border = 0
-        const format = ctx.RED
-        const type = ctx.UNSIGNED_BYTE
+    viewport() {
+        this.#ctx.viewport(0, 0, this.#width, this.#height)
+    }
 
-        const texture = ctx.createTexture()
-        ctx.bindTexture(ctx.TEXTURE_2D, texture)
-        ctx.pixelStorei(ctx.UNPACK_ALIGNMENT, alignment)
-        ctx.texImage2D(
-            ctx.TEXTURE_2D, level, internalFormat, width,
-            height, border, format, type, this.#localBuffer
+    #initTexture() {
+        const texture = this.#ctx.createTexture()
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, texture)
+        this.#ctx.pixelStorei(this.#ctx.UNPACK_ALIGNMENT, alignment)
+        this.#ctx.texImage2D(
+            this.#ctx.TEXTURE_2D, level, this.#internalFormat, this.#textureSize,
+            this.#textureSize, border, this.#format, this.#type, this.#localBuffer
         )
-        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST)
-        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST)
-        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, ctx.CLAMP_TO_EDGE)
-        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.CLAMP_TO_EDGE)
-        ctx.bindTexture(ctx.TEXTURE_2D, null)
+        this.#ctx.texParameteri(this.#ctx.TEXTURE_2D, this.#ctx.TEXTURE_MIN_FILTER, this.#ctx.NEAREST)
+        this.#ctx.texParameteri(this.#ctx.TEXTURE_2D, this.#ctx.TEXTURE_MAG_FILTER, this.#ctx.NEAREST)
+        this.#ctx.texParameteri(this.#ctx.TEXTURE_2D, this.#ctx.TEXTURE_WRAP_S, this.#ctx.CLAMP_TO_EDGE)
+        this.#ctx.texParameteri(this.#ctx.TEXTURE_2D, this.#ctx.TEXTURE_WRAP_T, this.#ctx.CLAMP_TO_EDGE)
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
         return texture
     }
 
     #initFrameBuffer(texture) {
-        const ctx = this.#ctx
-        const level = 0
-        const fb = ctx.createFramebuffer()
-        ctx.bindFramebuffer(ctx.FRAMEBUFFER, fb)
-        ctx.framebufferTexture2D(ctx.FRAMEBUFFER, ctx.COLOR_ATTACHMENT0, ctx.TEXTURE_2D, texture, level)
-        ctx.bindFramebuffer(ctx.FRAMEBUFFER, null)
+        const fb = this.#ctx.createFramebuffer()
+        this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, fb)
+        this.#ctx.framebufferTexture2D(this.#ctx.FRAMEBUFFER, this.#ctx.COLOR_ATTACHMENT0, this.#ctx.TEXTURE_2D, texture, level)
+        this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, null)
         return fb
     }
 }
