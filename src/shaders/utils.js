@@ -1,5 +1,48 @@
 import { attributeLocations } from "../scripts/store"
 
+export class Uniform {
+    #name
+    #loc
+    #ref
+    #type
+
+    constructor(name, ref, type) {
+        this.#name = name
+        this.#loc = null
+        this.#ref = ref
+        this.#type = type
+    }
+
+    getLocation(ctx, program) {
+        this.#loc = ctx.getUniformLocation(program, this.#name)
+    }
+
+    apply(ctx) {
+        switch(this.#type) {
+            case "float":
+                ctx.uniform1f(this.#loc, this.#ref.value)
+                break
+            case "int":
+                ctx.uniform1i(this.#loc, this.#ref.value)
+                break
+            case "vec2":
+                ctx.uniform2f(this.#loc, ...this.#ref.value)
+                break
+            case "vec4":
+                ctx.uniform4f(this.#loc, ...this.#ref.value)
+                break
+        }
+    }
+
+    inject() {
+        return `uniform ${this.#type} ${this.#name};`
+    }
+}
+
+export function injectUniforms(uniforms) {
+    return uniforms.map(uniform => uniform.inject()).join("\n")
+}
+
 function loadShader (ctx, type, src) {
     const shader = ctx.createShader(type)
 
@@ -15,7 +58,7 @@ function loadShader (ctx, type, src) {
     return shader
 }
 
-export function initProgram(ctx, vSrc, fSrc) {
+export function initProgram(ctx, vSrc, fSrc, uniforms) {
     const vShader = loadShader(ctx, ctx.VERTEX_SHADER, vSrc)
     const fShader = loadShader(ctx, ctx.FRAGMENT_SHADER, fSrc)
     const program = ctx.createProgram()
@@ -28,9 +71,10 @@ export function initProgram(ctx, vSrc, fSrc) {
         alert(`An error occurred linking the shaders: ${ctx.getProgramInfoLog(program)}`)
         ctx.deleteProgram(program)
         return null
-     }
+    }
 
-     return program
+    uniforms.forEach(uniform => uniform.getLocation(ctx, program))
+    return program
 }
 
 export function initVao(ctx) {

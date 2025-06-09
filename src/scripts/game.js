@@ -1,12 +1,9 @@
 import { CellData } from "./cells"
-import { 
-    boardSize, resolution, uniformLocations, viewCenter, zoom, size,
-    margin, border, marginColor, borderColor, aliveColor, deadColor,
-    wrap, mirror
-} from "./store"
-import { initVao } from "../shaders/init"
-import { initDraw } from "../shaders/draw"
-import { initStep } from "../shaders/step"
+import { resolution } from "./store"
+import { initProgram, initVao } from "../shaders/utils"
+import { uniforms as drawUniforms, src as drawSrc } from "../shaders/draw"
+import { uniforms as stepUniforms, src as stepSrc  } from "../shaders/step"
+import { src as vertexSrc } from "../shaders/vertex"
 
 const offset = 0
 const vertexCount = 4
@@ -26,8 +23,8 @@ export class Game {
         this.#ctx = ctx
         this.#vao = initVao(this.#ctx)
         this.#cells = new CellData(this.#ctx)
-        this.#drawProgram = initDraw(this.#ctx)
-        this.#stepProgram = initStep(this.#ctx)
+        this.#drawProgram = initProgram(this.#ctx, vertexSrc, drawSrc, drawUniforms)
+        this.#stepProgram = initProgram(this.#ctx, vertexSrc, stepSrc, stepUniforms)
         this.#drawing = false
         this.#stepping = false
     }
@@ -96,23 +93,12 @@ export class Game {
     }
 
     draw() {
-        this.#ctx.viewport(0, 0, resolution.value.width, resolution.value.height)
+        this.#ctx.viewport(0, 0, ...resolution.value)
         this.#ctx.useProgram(this.#drawProgram)
         this.#ctx.bindVertexArray(this.#vao)
         this.cells.syncGPU()
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.cells.currentBuffer)
-        this.#ctx.uniform1i(uniformLocations.drawBoardSize, boardSize.value)
-        this.#ctx.uniform1i(uniformLocations.mirror, mirror.value)
-        this.#ctx.uniform2f(uniformLocations.resolution, resolution.value.width, resolution.value.height)
-        this.#ctx.uniform2f(uniformLocations.viewCenter, viewCenter.value.x, viewCenter.value.y)
-        this.#ctx.uniform1f(uniformLocations.zoom, zoom.value)
-        this.#ctx.uniform1f(uniformLocations.size, size.value)
-        this.#ctx.uniform1f(uniformLocations.margin, margin.value)
-        this.#ctx.uniform1f(uniformLocations.border, border.value)
-        this.#ctx.uniform4f(uniformLocations.marginColor, ...marginColor.value)
-        this.#ctx.uniform4f(uniformLocations.borderColor, ...borderColor.value)
-        this.#ctx.uniform4f(uniformLocations.aliveColor, ...aliveColor.value)
-        this.#ctx.uniform4f(uniformLocations.deadColor, ...deadColor.value)
+        drawUniforms.forEach(uniform => {uniform.apply(this.#ctx)})
         this.#ctx.drawArrays(this.#ctx.TRIANGLE_STRIP, offset, vertexCount)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
         this.#ctx.bindVertexArray(null)
@@ -126,8 +112,7 @@ export class Game {
         this.cells.syncGPU()
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.cells.currentBuffer)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.cells.currentFB)
-        this.#ctx.uniform1i(uniformLocations.stepBoardSize, boardSize.value)
-        this.#ctx.uniform1i(uniformLocations.wrap, wrap.value)
+        stepUniforms.forEach(uniform => {uniform.apply(this.#ctx)})
         this.#ctx.drawArrays(this.#ctx.TRIANGLE_STRIP, offset, vertexCount)
         this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, null)
         this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)

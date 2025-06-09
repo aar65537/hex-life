@@ -8,12 +8,12 @@
 
     function pixelToCell(x, y) {
         // Calculate position in clip space
-        const minRes = Math.min(resolution.value.width, resolution.value.height)
+        const minRes = Math.min(...resolution.value)
         const dpi = window.devicePixelRatio
-        x = (2 * x * dpi - resolution.value.width) / minRes
-        y = (resolution.value.height - 2 * y * dpi) / minRes
-        x = x / zoom.value + viewCenter.value.x
-        y = y / zoom.value + viewCenter.value.y
+        x = (2 * x * dpi - resolution.value[0]) / minRes
+        y = (resolution.value[1] - 2 * y * dpi) / minRes
+        x = x / zoom.value + viewCenter.value[0]
+        y = y / zoom.value + viewCenter.value[1]
 
         // Calculate cube coordinates
         x /= size.value
@@ -69,8 +69,8 @@
                     game.toggleStepping(sps.value)
                     break
                 case "h":
-                    viewCenter.value.x = 0
-                    viewCenter.value.y = 0
+                    viewCenter.value[0] = 0
+                    viewCenter.value[1] = 0
                     zoom.value = 1
                     break
                 default:
@@ -82,16 +82,16 @@
             console.log(event)
             switch(event.key) {
                case "a":
-                    viewCenter.value.x -= 0.1
+                    viewCenter.value[0] -= 0.1
                     break
                 case "d":
-                    viewCenter.value.x += 0.1
+                    viewCenter.value[0] += 0.1
                     break
                 case "s":
-                    viewCenter.value.y -= 0.1
+                    viewCenter.value[1] -= 0.1
                     break
                 case "w":
-                    viewCenter.value.y += 0.1
+                    viewCenter.value[1] += 0.1
                     break
                case "=":
                     zoom.value += 0.1

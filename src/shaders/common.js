@@ -1,5 +1,4 @@
 export const prefix = `
-uniform int boardSize;
 uniform sampler2D cellData;
 
 int cellCount() {

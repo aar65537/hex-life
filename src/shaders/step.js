@@ -1,15 +1,18 @@
 import { prefix } from "./common";
-import { initProgram } from "./init";
-import { src as vSrc } from "./vertex"
-import { uniformLocations } from "../scripts/store";
+import { Uniform, injectUniforms } from "./utils";
+import { boardSize, wrap } from "@/scripts/store";
 
-const src = `#version 300 es
+export const uniforms = [
+    new Uniform("boardSize", boardSize, "int"),
+    new Uniform("wrap", wrap, "int"),
+]
+
+export const src = `#version 300 es
 precision mediump float;
 
 out float cellState;
 
-uniform int wrap;
-
+${injectUniforms(uniforms)}
 ${prefix}
 
 int neighborOffset(int index) {
@@ -53,10 +56,3 @@ void main() {
     }
 }
 `
-
-export function initStep(ctx) {
-    const program = initProgram(ctx, vSrc, src)
-    uniformLocations.stepBoardSize = ctx.getUniformLocation(program, "boardSize")
-    uniformLocations.wrap = ctx.getUniformLocation(program, "wrap")
-    return program
-}

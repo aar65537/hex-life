@@ -30,8 +30,8 @@ function onResize (canvas) {
             const displayHeight = Math.round(height * dpr)
             canvas.width = displayWidth
             canvas.height = displayHeight
-            resolution.value.width = displayWidth
-            resolution.value.height = displayHeight
+            resolution.value[0] = displayWidth
+            resolution.value[1] = displayHeight
         })
     }
 }

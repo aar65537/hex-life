@@ -1,25 +1,31 @@
 import { prefix } from "./common"
-import { initProgram } from "./init"
-import { src as vSrc } from "./vertex"
-import { uniformLocations } from "../scripts/store"
+import { Uniform, injectUniforms } from "./utils"
+import { 
+    border, margin, size, zoom, boardSize, mirror, resolution,
+    viewCenter, aliveColor, borderColor, deadColor, marginColor,
+} from "@/scripts/store"
 
-const src  = `#version 300 es
+export const uniforms = [
+    new Uniform("border", border, "float"),
+    new Uniform("margin", margin, "float"),
+    new Uniform("size", size, "float"),
+    new Uniform("zoom", zoom, "float"),
+    new Uniform("boardSize", boardSize, "int"),
+    new Uniform("mirror", mirror, "int"),
+    new Uniform("uResolution", resolution, "vec2"),
+    new Uniform("viewCenter", viewCenter, "vec2"),
+    new Uniform("aliveColor", aliveColor, "vec4"),
+    new Uniform("borderColor", borderColor, "vec4"),
+    new Uniform("deadColor", deadColor, "vec4"),
+    new Uniform("marginColor", marginColor, "vec4"),
+]
+
+export const src  = `#version 300 es
 precision mediump float;
 
 out vec4 outColor;
 
-uniform int mirror;
-uniform vec2 uResolution;
-uniform vec2 viewCenter;
-uniform float zoom;
-uniform float size;
-uniform float margin;
-uniform float border;
-uniform vec4 marginColor;
-uniform vec4 borderColor;
-uniform vec4 aliveColor;
-uniform vec4 deadColor;
-
+${injectUniforms(uniforms)}
 ${prefix}
 
 vec2 axialToPixel(ivec2 axial) {
@@ -85,19 +91,4 @@ void main() {
     }
 }
 `
-export function initDraw(ctx){
-    const program = initProgram(ctx, vSrc, src)
-    uniformLocations.drawBoardSize = ctx.getUniformLocation(program, "boardSize")
-    uniformLocations.mirror = ctx.getUniformLocation(program, "mirror")
-    uniformLocations.resolution = ctx.getUniformLocation(program, "uResolution")
-    uniformLocations.viewCenter = ctx.getUniformLocation(program, "viewCenter")
-    uniformLocations.zoom = ctx.getUniformLocation(program, "zoom")
-    uniformLocations.size = ctx.getUniformLocation(program, "size")
-    uniformLocations.margin = ctx.getUniformLocation(program, "margin")
-    uniformLocations.border = ctx.getUniformLocation(program, "border")
-    uniformLocations.marginColor = ctx.getUniformLocation(program, "marginColor")
-    uniformLocations.borderColor = ctx.getUniformLocation(program, "borderColor")
-    uniformLocations.aliveColor = ctx.getUniformLocation(program, "aliveColor")
-    uniformLocations.deadColor = ctx.getUniformLocation(program, "deadColor")
-    return program
-}
+console.log(src)
