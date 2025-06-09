@@ -10,6 +10,17 @@ const Buffers = Object.freeze({
     BACK: Symbol("back"),
 })
 
+function nextPowerOfTwo(x) {
+    var power = 0
+    while(true) {
+        const value = 1 << power
+        if(x <= value) {
+            return value
+        }
+        power += 1
+    }
+}
+
 export class CellData {
     #ctx
     #textureSize
@@ -22,7 +33,7 @@ export class CellData {
 
     constructor(ctx) {
         this.#ctx = ctx
-        this.#textureSize = this.#ctx.getParameter(this.#ctx.MAX_TEXTURE_SIZE)
+        this.#textureSize = nextPowerOfTwo(cellCount.value**0.5)
         this.#localBuffer = new Uint8Array(this.#textureSize**2)
         this.#frontBuffer = this.#initTexture()
         this.#backBuffer = this.#initTexture()

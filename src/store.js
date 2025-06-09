@@ -2,10 +2,10 @@ import { ref, computed } from "vue";
 
 export const attributeLocations = {position: 0}
 
-export const boardSize = ref(3)
+export const boardSize = ref(10)
 export const cellCount = computed(() => 3 * boardSize.value ** 2 - 3 * boardSize.value + 1)
 export const qStep = computed(() => 3 * boardSize.value - 2)
-export const mirror = ref(true)
+export const mirror = ref(false)
 export const wrap = ref(true)
 export const resolution = ref([1, 1])
 export const viewCenter = ref([0, 0])
