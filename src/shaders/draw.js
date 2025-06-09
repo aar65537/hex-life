@@ -1,5 +1,5 @@
 import { prefix } from "./common"
-import { Uniform, injectUniforms } from "./utils"
+import { Uniform } from "@/scripts/uniform"
 import { 
     border, margin, size, zoom, boardSize, mirror, resolution,
     viewCenter, aliveColor, borderColor, deadColor, marginColor,
@@ -25,7 +25,7 @@ precision mediump float;
 
 out vec4 outColor;
 
-${injectUniforms(uniforms)}
+${Uniform.inject(uniforms)}
 ${prefix}
 
 vec2 axialToPixel(ivec2 axial) {
@@ -91,4 +91,3 @@ void main() {
     }
 }
 `
-console.log(src)

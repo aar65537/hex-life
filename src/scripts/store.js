@@ -1,7 +1,6 @@
 import { ref, computed } from "vue";
 
 export const attributeLocations = {position: 0}
-export const uniformLocations = {}
 
 export const boardSize = ref(3)
 export const cellCount = computed(() => 3 * boardSize.value ** 2 - 3 * boardSize.value + 1)

@@ -1,5 +1,5 @@
 import { prefix } from "./common";
-import { Uniform, injectUniforms } from "./utils";
+import { Uniform } from "../scripts/uniform";
 import { boardSize, wrap } from "@/scripts/store";
 
 export const uniforms = [
@@ -12,7 +12,7 @@ precision mediump float;
 
 out float cellState;
 
-${injectUniforms(uniforms)}
+${Uniform.inject(uniforms)}
 ${prefix}
 
 int neighborOffset(int index) {
