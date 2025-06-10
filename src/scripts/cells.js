@@ -23,6 +23,7 @@ function nextPowerOfTwo(x) {
 
 export class CellData {
     #ctx
+    #singleBuffer
     #textureSize
     #localBuffer
     #frontBuffer
@@ -33,6 +34,7 @@ export class CellData {
 
     constructor(ctx) {
         this.#ctx = ctx
+        this.#singleBuffer = new Uint8Array(1)
         this.#init()
     }
 
@@ -108,18 +110,39 @@ export class CellData {
         this.#currentBufferFlag = Buffers.FRONT
     }
 
-    setCell(cell, state) {
-        this.syncLocal()
-        this.#localBuffer[cell] = state ? 255: 0
+    getCell(index) {
+        if(this.#currentBufferFlag === Buffers.LOCAL){
+            return this.#localBuffer[index] > 128
+        }
+        if(this.#currentBufferFlag === Buffers.FRONT) {
+            this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#frontFB)
+        } else if(this.#currentBufferFlag === Buffers.BACK) {
+            this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, this.#backFB)
+        }
+        const col = index.mod(this.#textureSize)
+        const row = Math.floor(index / this.#textureSize)
+        this.#ctx.pixelStorei(this.#ctx.PACK_ALIGNMENT, alignment)
+        this.#ctx.readPixels(col, row, 1, 1, this.#format, this.#type, this.#singleBuffer)
+        this.#ctx.bindFramebuffer(this.#ctx.FRAMEBUFFER, null)
+        return this.#singleBuffer[0] > 128
     }
 
-    getCell(cell) {
-        this.syncLocal()
-        return this.#localBuffer[cell] > 128
+    setCell(index, state) {
+        if(this.#currentBufferFlag === Buffers.LOCAL){
+            this.#localBuffer[index] = state ? 255: 0
+            return
+        }
+        const col = index.mod(this.#textureSize)
+        const row = Math.floor(index / this.#textureSize)
+        this.#singleBuffer[0] = state ? 255: 0
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, this.currentBuffer)
+        this.#ctx.pixelStorei(this.#ctx.UNPACK_ALIGNMENT, alignment)
+        this.#ctx.texSubImage2D(this.#ctx.TEXTURE_2D, level, col, row, 1, 1, this.#format, this.#type, this.#singleBuffer)
+        this.#ctx.bindTexture(this.#ctx.TEXTURE_2D, null)
     }
 
-    toggleCell(cell) {
-        this.setCell(cell, !this.getCell(cell))
+    toggleCell(index) {
+        this.setCell(index, !this.getCell(index))
     }
 
     flip() {
