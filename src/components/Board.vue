@@ -1,47 +1,11 @@
 <script setup>
     import { onMounted, onUnmounted, useTemplateRef, watch } from "vue"
-    import { fps, sps, viewCenter, zoom, size, resolution, cellCount, qStep } from "@/store"
+    import { fps, sps, viewCenter, zoom, cellCount } from "@/store"
     import { Game } from "@/scripts/game"
-    import { observeCanvasResize } from "@/scripts/canvas"
+    import { pixelToIndex, observeCanvasResize } from "@/scripts/board"
 
     const canvas = useTemplateRef("board")
-    var game
-
-    function pixelToCell(x, y) {
-        // Calculate position in clip space
-        const minRes = Math.min(...resolution.value)
-        const dpi = window.devicePixelRatio
-        x = (2 * x * dpi - resolution.value[0]) / minRes
-        y = (resolution.value[1] - 2 * y * dpi) / minRes
-        x = x / zoom.value + viewCenter.value[0]
-        y = y / zoom.value + viewCenter.value[1]
-
-        // Calculate cube coordinates
-        x /= size.value
-        y /= size.value
-        const qFrac = x * 3**0.5 / 3 + y / 3
-        const rFrac = -y * 2 / 3
-        const sFrac = -qFrac - rFrac
-        var q = Math.round(qFrac)
-        var r = Math.round(rFrac)
-        var s = Math.round(sFrac)
-
-        // Round cube coordinates
-        const qDiff = Math.abs(q - qFrac)
-        const rDiff = Math.abs(r - rFrac)
-        const sDiff = Math.abs(s - sFrac)
-        if(qDiff > rDiff && qDiff > sDiff) {
-            q = -r - s
-        } else if(rDiff > sDiff) {
-            r = -q - s
-        } else {
-            s = -q - r
-        }
-        console.log({q, r, s})
-
-        // Calculate cell index
-        return (q - r * qStep.value).mod(cellCount.value)
-    }
+    let game
 
     onMounted(() => {
         observeCanvasResize(canvas.value)
@@ -61,9 +25,11 @@
         canvas.value.addEventListener("mousedown", event => {
             console.log(event)
             if(event.buttons == 1) {
-                const cell = pixelToCell(event.layerX, event.layerY)
-                console.log(cell)
-                game.cells.toggleCell(cell)
+                const index = pixelToIndex(event.layerX, event.layerY)
+                console.log(index)
+                if(index !== null) {
+                    game.cells.toggleCell(index)
+                }
             }
         })
 

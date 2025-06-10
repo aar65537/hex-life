@@ -11,7 +11,7 @@ const Buffers = Object.freeze({
 })
 
 function nextPowerOfTwo(x) {
-    var power = 0
+    let power = 0
     while(true) {
         const value = 1 << power
         if(x <= value) {
