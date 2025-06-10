@@ -1,9 +1,10 @@
-import { boardSize, wrap } from "@/store";
+import { boardSize, ruleSet, wrap } from "@/store";
 import { prefix } from "@/shaders/common";
 import { Uniform } from "@/scripts/uniform";
 
 export const uniforms = [
     new Uniform("boardSize", boardSize, "int"),
+    new Uniform("ruleSet", ruleSet, "int"),
     new Uniform("wrap", wrap, "int"),
 ]
 
@@ -82,11 +83,7 @@ void main() {
     int width = textureSize(cellData, 0).x;
     ivec2 pixel = ivec2(gl_FragCoord);
     int index = pixel.x + width * pixel.y;
-    int numOfNeighbors = sumOfNeighbors(index);
-    if(numOfNeighbors == 2) {
-        cellState = 1.0;
-    } else {
-        cellState = 0.0;
-    }
+    int ruleNumber = (getCell(index) ? 7 : 0) + sumOfNeighbors(index);
+    cellState = (ruleSet & (1 << ruleNumber)) == 0 ? 0.0 : 1.0;
 }
 `

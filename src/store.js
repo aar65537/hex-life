@@ -2,11 +2,29 @@ import { ref, computed } from "vue";
 
 export const attributeLocations = {position: 0}
 
+export const rules = {
+    born: [ref(false), ref(false), ref(true), ref(false), ref(false), ref(false), ref(false)],
+    survive: [ref(false), ref(false), ref(true), ref(false), ref(false), ref(false), ref(false)]
+}
+export const ruleSet = computed(() => {
+    let ruleSet = 0
+    for (let index = 0; index < rules.born.length; index++) {
+        if(rules.born[index].value) {
+            ruleSet += 1 << index
+        }
+    }
+    for (let index = 0; index < rules.survive.length; index++) {
+        if(rules.survive[index].value) {
+            ruleSet += 1 << (index + 7)
+        }
+    }
+    return ruleSet
+})
 export const boardSize = ref(10)
 export const cellCount = computed(() => 3 * boardSize.value ** 2 - 3 * boardSize.value + 1)
 export const rStep = computed(() => -3 * boardSize.value + 2)
 export const mirror = ref(false)
-export const wrap = ref(false)
+export const wrap = ref(true)
 export const resolution = ref([1, 1])
 export const viewCenter = ref([0, 0])
 export const zoom = ref(1.0)
