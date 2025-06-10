@@ -1,5 +1,25 @@
 import { boardSize, cellCount, mirror, resolution, rStep, size, viewCenter, zoom } from "@/store"
 
+export function indexToAxial(index) {
+    index = index % cellCount.value
+    let q = 0
+    let r = 0
+    let width = boardSize.value
+    while(true) {
+        if(index < width) {
+            return [q + index, r]
+        }
+        index -= width
+        if(r > 0) {
+            r -= boardSize.value
+        } else {
+            r += boardSize.value - 1
+        }
+        q = -(boardSize.value - 1) - Math.min(r, 0)
+        width = 2 * boardSize.value - Math.abs(r) - 1
+    }
+}
+
 export function observeCanvasResize(canvas) {
     const resizeObserver = new ResizeObserver(onResize(canvas))
     try {
@@ -85,7 +105,6 @@ function pixelToAxial(x, y) {
         s = -q - r
     }
 
-    console.log({q, r, s})
     return [q, r]
 }
 

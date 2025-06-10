@@ -53,17 +53,6 @@ ivec2 pixelToAxial(vec2 pixel) {
     return ivec2(q, r);
 }
 
-int axialToIndex(ivec2 axial) {
-    return imod(axial.x - axial.y * qStep(), cellCount());
-}
-
-bool inWorld(ivec2 axial) {
-    int q = abs(axial.x);
-    int r = abs(axial.y);
-    int s = abs(axial.x + axial.y);
-    return mirror > 0 || (q < boardSize && r < boardSize && s < boardSize);
-}
-
 vec4 pixelColor(vec2 pixel, ivec2 axial, int index) {
     vec2 cellCenter = axialToPixel(axial);
     float d = distance(pixel, cellCenter);
@@ -84,7 +73,7 @@ void main() {
     pixel = pixel / zoom + viewCenter;
     ivec2 axial = pixelToAxial(pixel);
     int index = axialToIndex(axial);
-    if (inWorld(axial)) {
+    if (mirror > 0 || inCore(axial)) {
         outColor = pixelColor(pixel, axial, index);
     } else {
         outColor = marginColor;

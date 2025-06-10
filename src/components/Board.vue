@@ -26,7 +26,6 @@
             console.log(event)
             if(event.buttons == 1) {
                 const index = pixelToIndex(event.layerX, event.layerY)
-                console.log(index)
                 if(index !== null) {
                     game.cells.toggleCell(index)
                 }

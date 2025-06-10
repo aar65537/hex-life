@@ -15,16 +15,36 @@ out float cellState;
 ${Uniform.inject(uniforms)}
 ${prefix}
 
-int neighborOffset(int index) {
+ivec2 indexToAxial(int index) {
+    index = imod(index, cellCount());
+    ivec2 axial = ivec2(0, 0);
+    int width = boardSize;
+    while(true) {
+        if(index < width) {
+            axial.x += index;
+            return axial;
+        }
+        index -= width;
+        if(axial.y > 0) {
+            axial.y -= boardSize;
+        } else {
+            axial.y += boardSize - 1;
+        }
+        axial.x = -(boardSize - 1) - min(axial.y, 0);
+        width = 2 * boardSize - abs(axial.y) - 1;
+    }
+}
+
+int neighborOffsetIndex(int index) {
     int axis = index / 2;
     int direction = index % 2;
     int offset = 0;
     if (axis == 0) {
         offset = 1;
     } else if (axis == 1) {
-        offset = qStep();
+        offset = rStep();
     } else {
-        offset = qStep() + 1;
+        offset = rStep() - 1;
     }
     if (direction == 1) {
         offset *= -1;
@@ -32,14 +52,28 @@ int neighborOffset(int index) {
     return offset;
 }
 
-int neighbor(int cellIndex, int neighborIndex) {
-    return imod(cellIndex + neighborOffset(neighborIndex), cellCount());
+ivec2 neighborOffsetAxial[6] = ivec2[](
+    ivec2(1, 0), ivec2(-1, 0),
+    ivec2(0, 1), ivec2(0, -1),
+    ivec2(-1, 1), ivec2(1, -1)
+);
+
+bool getNeighbor(int cellIndex, int neighborIndex) {
+    if(wrap > 0) {
+        int neighbor = cellIndex + neighborOffsetIndex(neighborIndex);
+        neighbor = imod(neighbor, cellCount());
+        return getCell(neighbor);
+    }
+    ivec2 axial = indexToAxial(cellIndex);
+    ivec2 neighbor = axial + neighborOffsetAxial[neighborIndex];
+    neighborIndex = axialToIndex(neighbor);
+    return inCore(neighbor) && getCell(neighborIndex);
 }
 
 int sumOfNeighbors(int index) {
     int sum = 0;
     for(int i = 0; i < 6; i++) {
-        sum += getCell(neighbor(index, i)) ? 1 : 0;
+        sum += getNeighbor(index, i) ? 1 : 0;
     }
     return sum;
 }
