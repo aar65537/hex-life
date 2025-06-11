@@ -1,7 +1,7 @@
 import { 
     border, margin, size, zoom, boardSize, mirror, resolution,
     viewCenter, aliveColor, borderColor, deadColor, marginColor,
-    zoomFactor, drawDot,
+    zoomFactor, drawDot, highlightBorderColor, activeCell
 } from "@/store"
 import { Uniform } from "@/scripts/uniform"
 import { prefix } from "@/shaders/common"
@@ -12,6 +12,7 @@ export const uniforms = [
     new Uniform("size", size, "float"),
     new Uniform("zoom", zoom, "float"),
     new Uniform("zoomFactor", zoomFactor, "float"),
+    new Uniform("activeCell", activeCell, "int"),
     new Uniform("boardSize", boardSize, "int"),
     new Uniform("drawDot", drawDot, "int"),
     new Uniform("mirror", mirror, "int"),
@@ -20,6 +21,7 @@ export const uniforms = [
     new Uniform("aliveColor", aliveColor, "vec4"),
     new Uniform("borderColor", borderColor, "vec4"),
     new Uniform("deadColor", deadColor, "vec4"),
+    new Uniform("highlightBorderColor", highlightBorderColor, "vec4"),
     new Uniform("marginColor", marginColor, "vec4"),
 ]
 
@@ -63,7 +65,7 @@ vec4 pixelColor(vec2 pixel, ivec2 axial, int index) {
     if (drawDot > 0 && d >= innerRadius - margin) {
         return marginColor;
     } else if (drawDot > 0 && d >= innerRadius - margin - border) {
-        return borderColor;
+        return activeCell == index ? highlightBorderColor : borderColor;
     } else if (getCell(index)) {
         return aliveColor;
     } else {

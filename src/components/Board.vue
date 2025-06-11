@@ -1,6 +1,6 @@
 <script setup>
     import { onMounted, onUnmounted, useTemplateRef, watch } from "vue"
-    import { fps, sps, viewCenter, zoom, cellCount, resolution, zoomFactor, delta, acceleration, viewVelocity } from "@/store"
+    import { activeCell, fps, sps, viewCenter, zoom, cellCount, resolution, zoomFactor, delta, acceleration, viewVelocity } from "@/store"
     import { Game } from "@/scripts/game"
     import { pixelToIndex, observeCanvasResize } from "@/scripts/board"
 
@@ -23,20 +23,23 @@
 
         let startX
         let startY
-        let holding = false
 
         canvas.value.addEventListener("mousedown", event => {
             if(event.buttons == 1) {
                 startX = event.layerX
                 startY = event.layerY
-                holding = true
             }
         })
 
         canvas.value.addEventListener("mousemove", event => {
-            if(holding) {
+            if(event.buttons == 0) {
+                const index = pixelToIndex(event.layerX, event.layerY)
+                activeCell.value = index === null ? -1 : index
+            }
+            if(event.buttons == 1) {
                 const minRes = Math.min(...resolution.value)
                 const dpi = window.devicePixelRatio
+                activeCell.value = -1
                 viewVelocity[0] += (1 + zoomFactor.value) ** -zoom.value * acceleration * event.movementX * dpi / minRes
                 viewVelocity[1] += (1 + zoomFactor.value) ** -zoom.value * acceleration * event.movementY * dpi / minRes
             }
@@ -44,7 +47,6 @@
 
         canvas.value.addEventListener("mouseup", event => {
             if(event.buttons == 0) {
-                holding = false
                 const diffX = Math.abs(event.layerX - startX)
                 const diffY = Math.abs(event.layerY - startY)
                 if(diffX < delta && diffY < delta){
