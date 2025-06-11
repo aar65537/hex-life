@@ -1,6 +1,7 @@
 import { 
     border, margin, size, zoom, boardSize, mirror, resolution,
     viewCenter, aliveColor, borderColor, deadColor, marginColor,
+    zoomFactor,
 } from "@/store"
 import { Uniform } from "@/scripts/uniform"
 import { prefix } from "@/shaders/common"
@@ -10,6 +11,7 @@ export const uniforms = [
     new Uniform("margin", margin, "float"),
     new Uniform("size", size, "float"),
     new Uniform("zoom", zoom, "float"),
+    new Uniform("zoomFactor", zoomFactor, "float"),
     new Uniform("boardSize", boardSize, "int"),
     new Uniform("mirror", mirror, "int"),
     new Uniform("uResolution", resolution, "vec2"),
@@ -70,7 +72,7 @@ vec4 pixelColor(vec2 pixel, ivec2 axial, int index) {
 
 void main() {
     vec2 pixel = (2.0 * gl_FragCoord.xy - uResolution) / min(uResolution.x, uResolution.y);
-    pixel = pixel / zoom + viewCenter;
+    pixel = pixel * pow(1.0 + zoomFactor, -zoom) + viewCenter;
     ivec2 axial = pixelToAxial(pixel);
     int index = axialToIndex(axial);
     if (mirror > 0 || inCore(axial)) {

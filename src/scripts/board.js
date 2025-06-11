@@ -1,4 +1,4 @@
-import { boardSize, cellCount, mirror, resolution, rStep, size, viewCenter, zoom } from "@/store"
+import { boardSize, cellCount, mirror, resolution, rStep, size, viewCenter, zoom, zoomFactor } from "@/store"
 
 export function indexToAxial(index) {
     index = index % cellCount.value
@@ -80,8 +80,8 @@ function pixelToAxial(x, y) {
     const dpi = window.devicePixelRatio
     x = (2 * x * dpi - resolution.value[0]) / minRes
     y = (resolution.value[1] - 2 * y * dpi) / minRes
-    x = x / zoom.value + viewCenter.value[0]
-    y = y / zoom.value + viewCenter.value[1]
+    x = x * (1 + zoomFactor.value) ** -zoom.value + viewCenter.value[0]
+    y = y * (1 + zoomFactor.value) ** -zoom.value + viewCenter.value[1]
 
     // Calculate cube coordinates
     x /= size.value

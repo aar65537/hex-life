@@ -84,6 +84,6 @@ void main() {
     ivec2 pixel = ivec2(gl_FragCoord);
     int index = pixel.x + width * pixel.y;
     int ruleNumber = (getCell(index) ? 7 : 0) + sumOfNeighbors(index);
-    cellState = (ruleSet & (1 << ruleNumber)) == 0 ? 0.0 : 1.0;
+    cellState = (ruleSet & (1 << ruleNumber)) > 0 ? 1.0 : 0.0;
 }
 `

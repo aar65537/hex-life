@@ -1,7 +1,13 @@
 import { ref, computed } from "vue";
 
+// Settings
 export const attributeLocations = {position: 0}
+export const delta = 10
+export const acceleration = 0.35
+export const dampening = 0.85
+export const viewVelocity = [0, 0]
 
+// Refs
 export const rules = {
     born: [ref(false), ref(false), ref(true), ref(false), ref(false), ref(false), ref(false)],
     survive: [ref(false), ref(false), ref(true), ref(false), ref(false), ref(false), ref(false)]
@@ -27,7 +33,8 @@ export const mirror = ref(false)
 export const wrap = ref(true)
 export const resolution = ref([1, 1])
 export const viewCenter = ref([0, 0])
-export const zoom = ref(1.0)
+export const zoom = ref(0.0)
+export const zoomFactor = ref(0.15)
 export const size = ref(0.075)
 export const margin = ref(0.003)
 export const border = ref(0.000)

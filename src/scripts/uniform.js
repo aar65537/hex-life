@@ -11,7 +11,7 @@ export class Uniform {
         this.#type = type
     }
 
-    get declaration() {
+    get injection() {
         return `uniform ${this.#type} ${this.#name};`
     }
 
@@ -37,6 +37,6 @@ export class Uniform {
     }
 
     static inject(uniforms) {
-        return uniforms.map(uniform => uniform.declaration).join("\n")
+        return uniforms.map(uniform => uniform.injection).join("\n")
     }
 }

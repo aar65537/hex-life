@@ -1,4 +1,4 @@
-import { resolution } from "@/store"
+import { dampening, resolution, viewCenter, viewVelocity } from "@/store"
 import { CellData } from "@/scripts/cells"
 import { Program } from "@/scripts/program"
 import { Vao } from "@/scripts/vao"
@@ -8,7 +8,7 @@ import { src as vertexSrc } from "@/shaders/vertex"
 
 const offset = 0
 const vertexCount = 4
- 
+
 export class Game {
     #ctx
     #vao
@@ -90,6 +90,7 @@ export class Game {
     }
 
     draw() {
+        this.#move()
         this.#ctx.viewport(0, 0, ...resolution.value)
         this.#drawProgram.bind()
         this.#vao.bind()
@@ -123,5 +124,12 @@ export class Game {
         this.#cells.delete()
         this.#drawProgram.delete()
         this.#stepProgram.delete()
+    }
+
+    #move() {
+        viewCenter.value[0] -= viewVelocity[0]
+        viewCenter.value[1] += viewVelocity[1]
+        viewVelocity[0] *= dampening
+        viewVelocity[1] *= dampening
     }
 }
