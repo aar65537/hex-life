@@ -14,17 +14,10 @@
 			"settings": {
 				"explorer.fileNesting.enabled": true,
 				"explorer.fileNesting.patterns": {
-					"tsconfig.json": "tsconfig.*.json, env.d.ts",
 					"vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
 					"package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxlint*, .prettier*, prettier*, .editorconfig"
 				}
 			}
 		}
 	}
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
 }
