@@ -60,6 +60,7 @@
 
         canvas.value.addEventListener("wheel", event => {
             if(event.buttons == 0) {
+                activeCell.value = -1
                 if(event.wheelDelta > 0) {
                     zoom.value += 1
                 } else {
@@ -77,6 +78,7 @@
                     game.cells.resize()
                     break
                 case "h":
+                    activeCell.value = -1
                     viewCenter.value[0] = 0
                     viewCenter.value[1] = 0
                     viewVelocity[0] = 0
@@ -92,21 +94,27 @@
             switch(event.key) {
                case "a":
                     viewCenter.value[0] -= 0.1
+                    activeCell.value = -1
                     break
                 case "d":
                     viewCenter.value[0] += 0.1
+                    activeCell.value = -1
                     break
                 case "s":
                     viewCenter.value[1] -= 0.1
+                    activeCell.value = -1
                     break
                 case "w":
                     viewCenter.value[1] += 0.1
+                    activeCell.value = -1
                     break
-               case "=":
+                case "=":
                     zoom.value += 1
+                    activeCell.value = -1
                     break
                 case "-":
                     zoom.value -= 1
+                    activeCell.value = -1
                     break
                 case ".":
                     game.step()
