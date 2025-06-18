@@ -1,5 +1,4 @@
-export const prefix = `
-uniform sampler2D cellData;
+export const common = /*glsl*/ `
 
 int imod(int a, int b) {
     if(a>=0) {

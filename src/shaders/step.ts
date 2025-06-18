@@ -1,20 +1,26 @@
-import { boardSize, ruleSet, wrap } from "@/store";
-import { prefix } from "@/shaders/common";
-import { Uniform } from "@/scripts/uniform";
+import type { CellData } from '@/scripts/cells'
+import { Uniform } from '@/scripts/shader-utils/uniform'
+import { common } from '@/shaders/common'
+import { useGLStore } from '@/stores/gl'
+import { useHexStore } from '@/stores/hex'
 
-export const uniforms = [
-    new Uniform("boardSize", boardSize, "int"),
-    new Uniform("ruleSet", ruleSet, "int"),
-    new Uniform("wrap", wrap, "int"),
-]
+export function spec(cells: CellData) {
+  const gl = useGLStore()
+  const hex = useHexStore()
+  const uniforms = [
+    new Uniform(gl.ctx, 'boardSize', gl.ctx.INT, () => hex.boardSize),
+    new Uniform(gl.ctx, 'ruleSet', gl.ctx.INT, () => hex.ruleSet),
+    new Uniform(gl.ctx, 'wrap', gl.ctx.INT, () => hex.wrap),
+  ]
+  const src = /*glsl*/ `#version 300 es
 
-export const src = `#version 300 es
 precision mediump float;
 
 out float cellState;
 
+${cells.inject()}
 ${Uniform.inject(uniforms)}
-${prefix}
+${common}
 
 ivec2 indexToAxial(int index) {
     index = imod(index, cellCount());
@@ -87,3 +93,5 @@ void main() {
     cellState = (ruleSet & (1 << ruleNumber)) > 0 ? 1.0 : 0.0;
 }
 `
+  return { uniforms, src }
+}
