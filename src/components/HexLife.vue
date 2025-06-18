@@ -59,10 +59,15 @@ onMounted(() => {
   }
 
   let start: number[]
+  let touchDown = 0
+  let touchUp = 0
 
   container.value.addEventListener('pointerdown', (e) => {
-    if (e.buttons == 1) {
+    if (e.isPrimary && e.buttons == 1) {
       start = [e.offsetX, e.offsetY]
+    }
+    if (e.pointerType == 'touch') {
+      touchDown++
     }
   })
 
@@ -70,14 +75,28 @@ onMounted(() => {
     if (!game) {
       return
     }
-    if (e.buttons == 0) {
+    if (e.isPrimary && e.buttons == 0) {
       const diffX = Math.abs(e.offsetX - start[0])
       const diffY = Math.abs(e.offsetY - start[1])
       if (diffX < hex.deltaPixels && diffY < hex.deltaPixels) {
-        const index = pixelToIndex(e.offsetX, e.offsetY)
-        if (index != -1) {
-          game.cells.toggleCell(index)
+        if (e.pointerType != 'touch' || touchDown == 1) {
+          const index = pixelToIndex(e.offsetX, e.offsetY)
+          if (index != -1) {
+            game.cells.toggleCell(index)
+          }
+        } else if (touchDown == 2) {
+          hex.stepping = !hex.stepping
+        } else if (touchDown == 3) {
+          game.step()
+        } else if (touchDown == 4) {
+          game.cells.clear()
         }
+      }
+    }
+    if (e.pointerType == 'touch') {
+      touchUp++
+      if (touchUp == touchDown) {
+        ;[touchUp, touchDown] = [0, 0]
       }
     }
   })

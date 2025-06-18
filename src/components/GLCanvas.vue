@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { startResizeObserver } from '@/scripts/canvas'
+import { pixelToClip } from '@/scripts/utils'
 import { useGLStore } from '@/stores/gl'
 
 const canvas = useTemplateRef('glCanvas')
@@ -19,9 +20,33 @@ onMounted(() => {
   }
   resizeObserver = startResizeObserver(canvas.value)
 
+  canvas.value.addEventListener('gesturestart', (e) => {
+    e.preventDefault()
+  })
+
+  canvas.value.addEventListener('gesturechange', (e) => {
+    e.preventDefault()
+  })
+
+  canvas.value.addEventListener('gestureend', (e) => {
+    e.preventDefault()
+  })
+
+  const touches = [] as PointerEvent[]
+  let lastDiff = null as number | null
+
+  function pinchDiff() {
+    const [x1, y1] = pixelToClip(touches[0].offsetX, touches[0].offsetY)
+    const [x2, y2] = pixelToClip(touches[1].offsetX, touches[1].offsetY)
+    return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+  }
+
   canvas.value.addEventListener('pointerdown', (e) => {
     if (e.buttons == 1) {
       gl.dragging = true
+    }
+    if (e.pointerType == 'touch') {
+      touches.push(e)
     }
   })
 
@@ -29,8 +54,23 @@ onMounted(() => {
     if (e.pointerType == 'mouse') {
       gl.mousePos = [e.offsetX, e.offsetY]
     }
-
-    if (e.buttons == 1) {
+    if (e.pointerType == 'touch') {
+      const index = touches.findIndex((touch) => touch.pointerId == e.pointerId)
+      touches[index] = e
+    }
+    if (e.pointerType == 'touch' && touches.length == 2) {
+      const diff = pinchDiff()
+      if (lastDiff !== null) {
+        let mult
+        if (gl.zoom[0] > 0) {
+          mult = gl.zoomMult[0]
+        } else {
+          mult = 1 / gl.zoomMult[0]
+        }
+        gl.zoom[0] += (diff - lastDiff) * gl.zoomPinch * mult
+      }
+      lastDiff = pinchDiff()
+    } else if (e.buttons == 1) {
       const dpi = window.devicePixelRatio
       const minRes = Math.min(...gl.resolution)
       const [moveX, moveY] = [
@@ -45,6 +85,11 @@ onMounted(() => {
   canvas.value.addEventListener('pointerup', (e) => {
     if (e.buttons == 0) {
       gl.dragging = false
+    }
+    if (e.pointerType == 'touch') {
+      const index = touches.findIndex((touch) => touch.pointerId == e.pointerId)
+      touches.splice(index, 1)
+      lastDiff = null
     }
   })
 

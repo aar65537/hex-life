@@ -13,6 +13,7 @@ export const useGLStore = defineStore('gl', {
     dragging: false,
     zoom: [0],
     zoomFactor: [0.15],
+    zoomPinch: 10,
     lastTick: null as Date | null,
   }),
   getters: {

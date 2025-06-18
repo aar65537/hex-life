@@ -5,11 +5,11 @@ import type { Game } from '@/scripts/game'
 
 export const useHexStore = defineStore('hex', {
   state: () => ({
-    boardSize: [100],
+    boardSize: [1000],
     rules: [1 << 2, 1 << 9],
     border: [0.004],
     margin: [0.0],
-    mirror: [0],
+    mirror: [1],
     size: [0.075],
     wrap: [1],
     zoomFail: [6],
@@ -19,7 +19,7 @@ export const useHexStore = defineStore('hex', {
     highlightBorderColor: [1.0, 0.8, 0.4, 1],
     marginColor: [0.075, 0.115, 0.25, 1],
     fps: [90],
-    sps: [3],
+    sps: [6],
     drawing: true,
     drawID: null as number | null,
     stepping: false,

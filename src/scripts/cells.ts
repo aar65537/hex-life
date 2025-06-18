@@ -159,6 +159,11 @@ export class CellData {
     this.#currentBuffer = Buffers.LOCAL
   }
 
+  clear() {
+    this.#local.fill(0)
+    this.#currentBuffer = Buffers.LOCAL
+  }
+
   inject() {
     return this.#front.inject()
   }
