@@ -4,7 +4,7 @@ export const useGLStore = defineStore('gl', {
   state: () => ({
     rawCtx: null as WebGL2RenderingContext | null,
     resolution: [0, 0],
-    mousePos: [0, 0],
+    mousePos: null as number[] | null,
     center: [0, 0],
     centerV: [0, 0],
     vMin: 0.01,

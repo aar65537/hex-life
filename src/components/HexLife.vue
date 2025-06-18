@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import GLCanvas from '@/components/GLCanvas.vue'
 import { Game } from '@/scripts/game'
+import { pixelToIndex } from '@/scripts/utils'
 import { useGLStore } from '@/stores/gl'
 import { useHexStore } from '@/stores/hex'
 
@@ -59,13 +60,13 @@ onMounted(() => {
 
   let start: number[]
 
-  container.value.addEventListener('mousedown', (e) => {
+  container.value.addEventListener('pointerdown', (e) => {
     if (e.buttons == 1) {
       start = [e.offsetX, e.offsetY]
     }
   })
 
-  container.value.addEventListener('mouseup', (e) => {
+  container.value.addEventListener('pointerup', (e) => {
     if (!game) {
       return
     }
@@ -73,8 +74,9 @@ onMounted(() => {
       const diffX = Math.abs(e.offsetX - start[0])
       const diffY = Math.abs(e.offsetY - start[1])
       if (diffX < hex.deltaPixels && diffY < hex.deltaPixels) {
-        if (hex.activeCell[0] != -1) {
-          game.cells.toggleCell(hex.activeCell[0])
+        const index = pixelToIndex(e.offsetX, e.offsetY)
+        if (index != -1) {
+          game.cells.toggleCell(index)
         }
       }
     }

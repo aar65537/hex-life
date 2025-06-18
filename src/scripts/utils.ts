@@ -89,10 +89,8 @@ export function pixelToAxial(x: number, y: number) {
 }
 
 export function pixelToIndex(x: number, y: number) {
+  const gl = useGLStore()
   const hex = useHexStore()
   const [q, r] = pixelToAxial(x, y)
-  if (!hex.mirror && !inCore(q, r)) {
-    return null
-  }
-  return axialToIndex(q, r)
+  return !gl.dragging && (hex.mirror[0] || inCore(q, r)) ? axialToIndex(q, r) : -1
 }

@@ -19,14 +19,16 @@ onMounted(() => {
   }
   resizeObserver = startResizeObserver(canvas.value)
 
-  canvas.value.addEventListener('mousedown', (e) => {
+  canvas.value.addEventListener('pointerdown', (e) => {
     if (e.buttons == 1) {
       gl.dragging = true
     }
   })
 
-  canvas.value.addEventListener('mousemove', (e) => {
-    gl.mousePos = [e.offsetX, e.offsetY]
+  canvas.value.addEventListener('pointermove', (e) => {
+    if (e.pointerType == 'mouse') {
+      gl.mousePos = [e.offsetX, e.offsetY]
+    }
 
     if (e.buttons == 1) {
       const dpi = window.devicePixelRatio
@@ -40,7 +42,7 @@ onMounted(() => {
     }
   })
 
-  canvas.value.addEventListener('mouseup', (e) => {
+  canvas.value.addEventListener('pointerup', (e) => {
     if (e.buttons == 0) {
       gl.dragging = false
     }
