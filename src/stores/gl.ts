@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { pixelToClip } from '@/scripts/utils'
 
 export const useGLStore = defineStore('gl', {
   state: () => ({
@@ -7,8 +6,14 @@ export const useGLStore = defineStore('gl', {
     resolution: [0, 0],
     mousePos: [0, 0],
     center: [0, 0],
+    centerV: [0, 0],
+    vMin: 0.01,
+    acceleration: 5,
+    dampening: 0.1,
+    dragging: false,
     zoom: [0],
     zoomFactor: [0.15],
+    lastTick: null as Date | null,
   }),
   getters: {
     ctx(): WebGL2RenderingContext {
@@ -31,11 +36,19 @@ export const useGLStore = defineStore('gl', {
         throw new Error('Unable to initialize WebGL context.')
       }
     },
-    setResolution(width: number, height: number): void {
-      this.resolution = [width, height]
-    },
-    setMousePos(x: number, y: number): void {
-      this.mousePos = pixelToClip(x, y)
+    tick(): number {
+      const lastTick = this.lastTick
+      this.lastTick = new Date()
+      const delta = lastTick ? (this.lastTick.getTime() - lastTick.getTime()) / 1000 : 0
+      this.center[0] += this.centerV[0] * delta
+      this.center[1] += this.centerV[1] * delta
+      this.centerV[0] *= this.dampening ** delta
+      this.centerV[1] *= this.dampening ** delta
+      this.centerV[0] =
+        Math.abs(this.centerV[0]) < this.vMin * this.zoomMult[0] ? 0 : this.centerV[0]
+      this.centerV[1] =
+        Math.abs(this.centerV[1]) < this.vMin * this.zoomMult[0] ? 0 : this.centerV[1]
+      return delta
     },
   },
 })

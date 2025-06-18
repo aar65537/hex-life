@@ -79,7 +79,7 @@ export function pixelToClip(x: number, y: number) {
   const minRes = Math.min(...gl.resolution)
   return [
     (gl.zoomMult[0] * (2 * x * dpi - gl.resolution[0])) / minRes + gl.center[0],
-    (gl.zoomMult[0] * (gl.resolution[1] - 2 * y * dpi)) / minRes + gl.center[0],
+    (gl.zoomMult[0] * (gl.resolution[1] - 2 * y * dpi)) / minRes + gl.center[1],
   ]
 }
 

@@ -65,12 +65,6 @@ onMounted(() => {
     }
   })
 
-  container.value.addEventListener('mousemove', (e) => {
-    if (e.buttons == 1) {
-      console.log(e)
-    }
-  })
-
   container.value.addEventListener('mouseup', (e) => {
     if (!game) {
       return

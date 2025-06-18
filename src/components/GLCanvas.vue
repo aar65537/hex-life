@@ -19,8 +19,55 @@ onMounted(() => {
   }
   resizeObserver = startResizeObserver(canvas.value)
 
-  canvas.value.addEventListener('mousemove', (e: MouseEvent) => {
-    gl.setMousePos(e.offsetX, e.offsetY)
+  canvas.value.addEventListener('mousedown', (e) => {
+    if (e.buttons == 1) {
+      gl.dragging = true
+    }
+  })
+
+  canvas.value.addEventListener('mousemove', (e) => {
+    gl.mousePos = [e.offsetX, e.offsetY]
+
+    if (e.buttons == 1) {
+      const dpi = window.devicePixelRatio
+      const minRes = Math.min(...gl.resolution)
+      const [moveX, moveY] = [
+        (gl.zoomMult[0] * e.movementX * dpi) / minRes,
+        (-gl.zoomMult[0] * e.movementY * dpi) / minRes,
+      ]
+      gl.centerV[0] -= gl.acceleration * moveX
+      gl.centerV[1] -= gl.acceleration * moveY
+    }
+  })
+
+  canvas.value.addEventListener('mouseup', (e) => {
+    if (e.buttons == 0) {
+      gl.dragging = false
+    }
+  })
+
+  canvas.value.addEventListener('wheel', (e) => {
+    gl.centerV[0] /= gl.zoomMult[0]
+    gl.centerV[1] /= gl.zoomMult[0]
+    if (e.deltaY < 0) {
+      gl.zoom[0] += 1
+    } else {
+      gl.zoom[0] -= 1
+    }
+    gl.centerV[0] *= gl.zoomMult[0]
+    gl.centerV[1] *= gl.zoomMult[0]
+  })
+
+  canvas.value.addEventListener('keyup', (e) => {
+    switch (e.key) {
+      case 'h':
+        gl.center = [0, 0]
+        gl.centerV = [0, 0]
+        gl.zoom = [0]
+        break
+      default:
+        break
+    }
   })
 })
 

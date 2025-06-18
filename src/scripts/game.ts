@@ -61,6 +61,7 @@ export class Game {
   }
 
   draw() {
+    this.#gl.tick()
     this.bind()
     this.#draw.bind()
     this.#gl.ctx.viewport(0, 0, this.#gl.resolution[0], this.#gl.resolution[1])

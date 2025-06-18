@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import { axialToIndex, clipToAxial, inCore } from '@/scripts/utils'
+import { axialToIndex, inCore, pixelToAxial } from '@/scripts/utils'
 import { useGLStore } from '@/stores/gl'
 import type { Game } from '@/scripts/game'
 
 export const useHexStore = defineStore('hex', {
   state: () => ({
-    boardSize: [10],
+    boardSize: [100],
     rules: [1 << 2, 1 << 9],
     border: [0.004],
     margin: [0.0],
@@ -29,8 +29,8 @@ export const useHexStore = defineStore('hex', {
   getters: {
     activeCell(): number[] {
       const gl = useGLStore()
-      const [q, r] = clipToAxial(gl.mousePos[0], gl.mousePos[1])
-      return this.mirror[0] || inCore(q, r) ? [axialToIndex(q, r)] : [-1]
+      const [q, r] = pixelToAxial(gl.mousePos[0], gl.mousePos[1])
+      return !gl.dragging && (this.mirror[0] || inCore(q, r)) ? [axialToIndex(q, r)] : [-1]
     },
     cellCount(): number {
       return 3 * this.boardSize[0] ** 2 - 3 * this.boardSize[0] + 1

@@ -25,7 +25,7 @@ export function startResizeObserver(canvas: HTMLCanvasElement) {
       height = Math.round(height * dpr)
       canvas.width = width
       canvas.height = height
-      gl.setResolution(width, height)
+      gl.resolution = [width, height]
     })
   })
   try {
