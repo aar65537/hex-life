@@ -5,11 +5,11 @@ import type { Game } from '@/scripts/game'
 
 export const useHexStore = defineStore('hex', {
   state: () => ({
-    boardSize: [1000],
+    boardSize: [10],
     rules: [1 << 2, 1 << 9],
     border: [0.004],
     margin: [0.0],
-    mirror: [1],
+    mirror: [0],
     size: [0.075],
     wrap: [1],
     zoomFail: [6],
@@ -53,8 +53,7 @@ export const useHexStore = defineStore('hex', {
       if (this.drawing && this.drawID === null) {
         this.drawID = window.setInterval(() => game.draw(), 1000.0 / this.fps[0])
       } else if (!this.drawing && this.drawID !== null) {
-        clearInterval(this.drawID)
-        this.drawID = null
+        this.stopDrawing()
       }
     },
     enforceStepping(game: Game, state?: boolean): void {
@@ -64,6 +63,17 @@ export const useHexStore = defineStore('hex', {
       if (this.stepping && this.stepID === null) {
         this.stepID = window.setInterval(() => game.step(), 1000.0 / this.sps[0])
       } else if (!this.stepping && this.stepID !== null) {
+        this.stopStepping()
+      }
+    },
+    stopDrawing(): void {
+      if (this.drawID !== null) {
+        clearInterval(this.drawID)
+        this.drawID = null
+      }
+    },
+    stopStepping(): void {
+      if (this.stepID !== null) {
         clearInterval(this.stepID)
         this.stepID = null
       }

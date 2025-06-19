@@ -53,6 +53,35 @@ watch(
   },
 )
 
+watch(
+  () => hex.fps[0],
+  () => {
+    if (game) {
+      hex.stopDrawing()
+      hex.enforceDrawing(game)
+    }
+  },
+)
+
+watch(
+  () => hex.sps[0],
+  () => {
+    if (game) {
+      hex.stopStepping()
+      hex.enforceStepping(game)
+    }
+  },
+)
+
+watch(
+  () => hex.boardSize[0],
+  () => {
+    if (game) {
+      game.cells.resize()
+    }
+  },
+)
+
 onMounted(() => {
   if (!container.value) {
     throw new Error('No container found.')
@@ -110,15 +139,28 @@ onMounted(() => {
       case '.':
         game.step()
         break
+      case 'p':
+        hex.boardSize[0] += 1
+        break
+      case 'o':
+        hex.boardSize[0] -= 1
+        break
       default:
         break
     }
   })
 
   container.value.addEventListener('keyup', (e) => {
+    if (game === null) {
+      return
+    }
+
     switch (e.key) {
       case ' ':
         hex.stepping = !hex.stepping
+        break
+      case 'c':
+        game.cells.clear()
         break
       default:
         break

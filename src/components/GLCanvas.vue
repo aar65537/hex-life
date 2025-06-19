@@ -116,6 +116,19 @@ onMounted(() => {
         break
     }
   })
+
+  canvas.value.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case '=':
+        gl.zoom[0] += 1
+        break
+      case '-':
+        gl.zoom[0] -= 1
+        break
+      default:
+        break
+    }
+  })
 })
 
 onUnmounted(() => {

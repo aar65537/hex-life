@@ -5,6 +5,17 @@ export function imod(a: number, b: number): number {
   return ((a % b) + b) % b
 }
 
+export function nextPowerOfTwo(x: number) {
+  let power = 0
+  while (true) {
+    const value = 1 << power
+    if (x <= value) {
+      return value
+    }
+    power += 1
+  }
+}
+
 export function axialToIndex(q: number, r: number) {
   // Calculate cell index
   const hex = useHexStore()
@@ -52,24 +63,26 @@ export function inCore(q: number, r: number) {
   return Math.max(q, r, s) < hex.boardSize[0]
 }
 
-export function indexToAxial(index: number) {
+export function indexToAxial(index: number, boardSize?: number) {
   const hex = useHexStore()
-  index = index % hex.cellCount
+  boardSize = typeof boardSize === 'undefined' ? hex.boardSize[0] : boardSize
+  const cellCount = 3 * boardSize ** 2 - 3 * boardSize + 1
+  index = index % cellCount
   let q = 0
   let r = 0
-  let width = hex.boardSize[0]
+  let width = boardSize
   while (true) {
     if (index < width) {
       return [q + index, r]
     }
     index -= width
     if (r > 0) {
-      r -= hex.boardSize[0]
+      r -= boardSize
     } else {
-      r += hex.boardSize[0] - 1
+      r += boardSize - 1
     }
-    q = -(hex.boardSize[0] - 1) - Math.min(r, 0)
-    width = 2 * hex.boardSize[0] - Math.abs(r) - 1
+    q = -(boardSize - 1) - Math.min(r, 0)
+    width = 2 * boardSize - Math.abs(r) - 1
   }
 }
 

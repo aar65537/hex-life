@@ -1,4 +1,4 @@
-import { imod } from '@/scripts/utils'
+import { axialToIndex, imod, inCore, indexToAxial, nextPowerOfTwo } from '@/scripts/utils'
 import { Texture } from '@/scripts/shader-utils/texture'
 import { useGLStore } from '@/stores/gl'
 import { useHexStore } from '@/stores/hex'
@@ -9,23 +9,15 @@ const Buffers = Object.freeze({
   BACK: Symbol('back'),
 })
 
-function nextPowerOfTwo(x: number) {
-  let power = 0
-  while (true) {
-    const value = 1 << power
-    if (x <= value) {
-      return value
-    }
-    power += 1
-  }
-}
-
 export class CellData {
   #gl
   #hex
   #single
   #currentBuffer
+  #boardSize
+  #cellCount
   #width
+  #height
   #local
   #front
   #back
@@ -35,8 +27,11 @@ export class CellData {
     this.#hex = useHexStore()
     this.#single = new Uint8Array(1)
     this.#currentBuffer = Buffers.LOCAL
-    this.#width = nextPowerOfTwo(this.#hex.cellCount ** 0.5)
-    this.#local = new Uint8Array(this.#width * this.#height)
+    this.#boardSize = this.#hex.boardSize[0]
+    this.#cellCount = 3 * this.boardSize ** 2 - 3 * this.boardSize + 1
+    this.#width = nextPowerOfTwo(Math.sqrt(this.cellCount))
+    this.#height = Math.ceil(this.cellCount / this.width)
+    this.#local = new Uint8Array(this.width * this.height)
 
     const name = 'cellData'
     const alignment = 1
@@ -49,8 +44,27 @@ export class CellData {
     this.#back = new Texture(this.#gl.ctx, name, alignment, level, iFormat, border, format, type)
   }
 
-  get #height() {
-    return Math.ceil(this.#hex.cellCount / this.#width)
+  get boardSize() {
+    return this.#boardSize
+  }
+
+  setBoardSize(boardSize: number) {
+    this.#boardSize = boardSize
+    this.#cellCount = 3 * this.boardSize ** 2 - 3 * this.boardSize + 1
+    this.#width = nextPowerOfTwo(Math.sqrt(this.cellCount))
+    this.#height = Math.ceil(this.cellCount / this.width)
+  }
+
+  get cellCount() {
+    return this.#cellCount
+  }
+
+  get width() {
+    return this.#width
+  }
+
+  get height() {
+    return this.#height
   }
 
   get currentBuffer() {
@@ -81,7 +95,7 @@ export class CellData {
     if (this.currentBuffer === Buffers.LOCAL) {
       return
     }
-    this.input.read(0, 0, this.#width, this.#height, this.#local)
+    this.input.read(0, 0, this.width, this.height, this.#local)
     this.#currentBuffer = Buffers.LOCAL
   }
 
@@ -89,8 +103,8 @@ export class CellData {
     if (this.currentBuffer !== Buffers.LOCAL) {
       return
     }
-    this.#front.write(this.#width, this.#height, this.#local)
-    this.#back.write(this.#width, this.#height, this.#local)
+    this.#front.write(this.width, this.height, this.#local)
+    this.#back.write(this.width, this.height, this.#local)
     this.#currentBuffer = Buffers.BACK
   }
 
@@ -98,8 +112,8 @@ export class CellData {
     if (this.currentBuffer === Buffers.LOCAL) {
       return this.#local[index] > 128
     }
-    const col = imod(index, this.#width)
-    const row = Math.floor(index / this.#width)
+    const col = imod(index, this.width)
+    const row = Math.floor(index / this.width)
     this.input.read(col, row, 1, 1, this.#single)
     return this.#single[0] > 128
   }
@@ -109,8 +123,8 @@ export class CellData {
       this.#local[index] = state ? 255 : 0
       return
     }
-    const col = imod(index, this.#width)
-    const row = Math.floor(index / this.#width)
+    const col = imod(index, this.width)
+    const row = Math.floor(index / this.width)
     this.#single[0] = state ? 255 : 0
     this.input.writePart(col, row, 1, 1, this.#single)
   }
@@ -141,7 +155,7 @@ export class CellData {
   bindOutput() {
     this.syncGPU()
     this.output.bindFB()
-    this.#gl.ctx.viewport(0, 0, this.#width, this.#height)
+    this.#gl.ctx.viewport(0, 0, this.width, this.height)
   }
 
   unbindOutput() {
@@ -154,9 +168,18 @@ export class CellData {
   }
 
   resize() {
-    this.#width = nextPowerOfTwo(this.#hex.cellCount ** 0.5)
-    this.#local = new Uint8Array(this.#width * this.#height)
-    this.#currentBuffer = Buffers.LOCAL
+    this.syncLocal()
+    const oldLocal = this.#local
+    const oldBoardSize = this.boardSize
+    const oldCellCount = this.#cellCount
+    this.setBoardSize(this.#hex.boardSize[0])
+    this.#local = new Uint8Array(this.width * this.height)
+    for (let index = 0; index < oldCellCount; index++) {
+      const [q, r] = indexToAxial(index, oldBoardSize)
+      if (inCore(q, r)) {
+        this.#local[axialToIndex(q, r)] = oldLocal[index]
+      }
+    }
   }
 
   clear() {
