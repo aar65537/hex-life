@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import GLCanvas from '@/components/GLCanvas.vue'
+import HexToolbar from '@/components/HexToolbar.vue'
 import { Game } from '@/scripts/game'
 import { pixelToIndex } from '@/scripts/utils'
 import { useGLStore } from '@/stores/gl'
@@ -82,6 +83,27 @@ watch(
   },
 )
 
+watch(
+  () => hex.clearFlag,
+  () => {
+    if (hex.clearFlag && game) {
+      hex.stepping = false
+      game.cells.clear()
+    }
+    hex.clearFlag = false
+  },
+)
+
+watch(
+  () => hex.stepFlag,
+  () => {
+    if (hex.stepFlag && game) {
+      game.step()
+    }
+    hex.stepFlag = false
+  },
+)
+
 onMounted(() => {
   if (!container.value) {
     throw new Error('No container found.')
@@ -118,7 +140,7 @@ onMounted(() => {
         } else if (touchDown == 3) {
           game.step()
         } else if (touchDown == 4) {
-          game.cells.clear()
+          hex.clearFlag = true
         }
       }
     }
@@ -160,7 +182,7 @@ onMounted(() => {
         hex.stepping = !hex.stepping
         break
       case 'c':
-        game.cells.clear()
+        hex.clearFlag = true
         break
       default:
         break
@@ -177,6 +199,7 @@ onUnmounted(() => {
   <div ref="container" class="container">
     <GLCanvas />
   </div>
+  <HexToolbar class="toolbar" />
 </template>
 
 <style scoped>
@@ -184,5 +207,15 @@ onUnmounted(() => {
   position: fixed;
   width: 100vw;
   height: 100vh;
+  top: 0px;
+  left: 0px;
+}
+
+.toolbar {
+  position: fixed;
+  width: 18rem;
+  height: 2.5rem;
+  top: 20px;
+  right: 12px;
 }
 </style>
