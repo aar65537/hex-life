@@ -41,17 +41,23 @@ a,
 button {
   width: 100%;
 
-  color: black;
-  background-color: white;
+  color: var(--color-foreground-mute);
+  background-color: var(--color-background-soft);
   cursor: pointer;
 
   padding: 1px;
-  border: 2px outset black;
+  border: 2px outset var(--color-border);
   border-radius: 5px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+a:hover,
+button:hover {
+  background-color: var(--color-background-mute);
+  border-color: var(--color-border-hover);
 }
 
 a svg,

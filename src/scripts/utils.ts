@@ -107,3 +107,21 @@ export function pixelToIndex(x: number, y: number) {
   const [q, r] = pixelToAxial(x, y)
   return !gl.dragging && (hex.mirror[0] || inCore(q, r)) ? axialToIndex(q, r) : -1
 }
+
+export function getCSSColor(color: string) {
+  const colorString = window.getComputedStyle(document.body).getPropertyValue(color).slice(1, 7)
+  const colorInt = parseInt(colorString, 16)
+  const red = ((colorInt >> 16) & 0xff) / 0xff
+  const green = ((colorInt >> 8) & 0xff) / 0xff
+  const blue = (colorInt & 0xff) / 0xff
+  return [red, green, blue, 1.0]
+}
+
+export function syncColors() {
+  const hex = useHexStore()
+  hex.aliveColor = getCSSColor('--color-foreground-mute')
+  hex.borderColor = getCSSColor('--color-border')
+  hex.deadColor = getCSSColor('--color-background-mute')
+  hex.highlightBorderColor = getCSSColor('--color-border-hover')
+  hex.marginColor = getCSSColor('--color-background-soft')
+}

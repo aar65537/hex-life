@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
+import { usePreferredColorScheme } from '@vueuse/core'
 import GLCanvas from '@/components/GLCanvas.vue'
 import HexToolbar from '@/components/HexToolbar.vue'
 import { Game } from '@/scripts/game'
-import { pixelToIndex } from '@/scripts/utils'
+import { pixelToIndex, syncColors } from '@/scripts/utils'
 import { useGLStore } from '@/stores/gl'
 import { useHexStore } from '@/stores/hex'
 
 const gl = useGLStore()
 const hex = useHexStore()
 const container = useTemplateRef('container')
+const colorScheme = usePreferredColorScheme()
 
 let game: Game | null = null
 
@@ -103,6 +105,8 @@ watch(
     hex.stepFlag = false
   },
 )
+
+watch(() => colorScheme.value, syncColors, { immediate: true })
 
 onMounted(() => {
   if (!container.value) {
