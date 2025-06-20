@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Toolbar } from 'reka-ui/namespaced'
+import { Popover, Toolbar } from 'reka-ui/namespaced'
 import {
   ByForwards,
   ByFullscreen,
@@ -11,6 +11,7 @@ import {
   ByReload,
   BySettings,
 } from '@kalimahapps/vue-icons'
+import HexSettings from '@/components/HexSettings.vue'
 import { useHexStore } from '@/stores/hex'
 
 const hex = useHexStore()
@@ -23,9 +24,14 @@ const hex = useHexStore()
     </Toolbar.Button>
     <Toolbar.Button @click="hex.stepFlag = true"> <ByForwards /> </Toolbar.Button>
     <Toolbar.Button @click="hex.clearFlag = true"> <ByReload /> </Toolbar.Button>
-    <Toolbar.Button> <BySettings /> </Toolbar.Button>
     <Toolbar.Button> <ByInfo /> </Toolbar.Button>
     <Toolbar.Link href="https://github.com/aar65537/hex-life"> <ByGithub /> </Toolbar.Link>
+    <Popover.Root>
+      <Toolbar.Button as-child>
+        <Popover.Trigger> <BySettings /> </Popover.Trigger>
+      </Toolbar.Button>
+      <HexSettings />
+    </Popover.Root>
     <Toolbar.Button @click="hex.fullscreen = !hex.fullscreen">
       <ByFullscreen v-if="!hex.fullscreen" /> <ByFullscreenExit v-if="hex.fullscreen" />
     </Toolbar.Button>
@@ -35,6 +41,7 @@ const hex = useHexStore()
 <style scoped>
 .HexToolbar {
   display: flex;
+  gap: 2px;
 }
 
 a,
