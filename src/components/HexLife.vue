@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
-import { usePreferredColorScheme } from '@vueuse/core'
+import { useFullscreen, usePreferredColorScheme } from '@vueuse/core'
 import GLCanvas from '@/components/GLCanvas.vue'
 import HexToolbar from '@/components/HexToolbar.vue'
 import { Game } from '@/scripts/game'
@@ -10,8 +10,9 @@ import { useHexStore } from '@/stores/hex'
 
 const gl = useGLStore()
 const hex = useHexStore()
-const container = useTemplateRef('container')
 const colorScheme = usePreferredColorScheme()
+const canvas = useTemplateRef('canvasContainer')
+const hexLife = useTemplateRef('hexLifeContainer')
 
 let game: Game | null = null
 
@@ -106,18 +107,44 @@ watch(
   },
 )
 
+watch(
+  () => hex.fullscreen,
+  () => {
+    if (!hexLife.value) {
+      return
+    }
+    if (hex.fullscreen && !document.fullscreenElement) {
+      hexLife.value.requestFullscreen({ navigationUI: 'hide' })
+    } else if (!hex.fullscreen && document.fullscreenElement) {
+      document.exitFullscreen()
+    }
+  },
+)
+
 watch(() => colorScheme.value, syncColors, { immediate: true })
 
 onMounted(() => {
-  if (!container.value) {
-    throw new Error('No container found.')
+  if (!hexLife.value) {
+    throw new Error('No app container found.')
   }
+
+  if (!canvas.value) {
+    throw new Error('No canvas container found.')
+  }
+
+  const { isFullscreen } = useFullscreen(hexLife.value)
+  watch(
+    () => isFullscreen.value,
+    () => {
+      hex.fullscreen = isFullscreen.value
+    },
+  )
 
   let start: number[]
   let touchDown = 0
   let touchUp = 0
 
-  container.value.addEventListener('pointerdown', (e) => {
+  canvas.value.addEventListener('pointerdown', (e) => {
     if (e.isPrimary && e.buttons == 1) {
       start = [e.offsetX, e.offsetY]
     }
@@ -126,7 +153,7 @@ onMounted(() => {
     }
   })
 
-  container.value.addEventListener('pointerup', (e) => {
+  canvas.value.addEventListener('pointerup', (e) => {
     if (!game) {
       return
     }
@@ -156,7 +183,7 @@ onMounted(() => {
     }
   })
 
-  container.value.addEventListener('keydown', (e) => {
+  canvas.value.addEventListener('keydown', (e) => {
     if (!game) {
       return
     }
@@ -176,7 +203,7 @@ onMounted(() => {
     }
   })
 
-  container.value.addEventListener('keyup', (e) => {
+  canvas.value.addEventListener('keyup', (e) => {
     if (game === null) {
       return
     }
@@ -200,14 +227,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="container" class="container">
-    <GLCanvas />
+  <div ref="hexLifeContainer">
+    <div ref="canvasContainer" class="canvasContainer">
+      <GLCanvas />
+    </div>
+    <HexToolbar class="toolbar" />
   </div>
-  <HexToolbar class="toolbar" />
 </template>
 
 <style scoped>
-.container {
+.canvasContainer {
   position: fixed;
   width: 100vw;
   height: 100vh;

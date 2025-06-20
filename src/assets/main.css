@@ -47,7 +47,7 @@ body {
   padding: 0;
   overflow: hidden;
   color: var(--color-foreground);
-  background-color: var(--color-background);
+  background-color: var(--color-background-soft);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
