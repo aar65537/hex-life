@@ -93,6 +93,10 @@ onMounted(() => {
     }
   })
 
+  canvas.value.addEventListener('pointerleave', () => {
+    gl.mousePos = null
+  })
+
   canvas.value.addEventListener('wheel', (e) => {
     gl.centerV[0] /= gl.zoomMult[0]
     gl.centerV[1] /= gl.zoomMult[0]
