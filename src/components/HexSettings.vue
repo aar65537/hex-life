@@ -1,57 +1,91 @@
 <script setup lang="ts">
 import { Popover } from 'reka-ui/namespaced'
 import { ByClose } from '@kalimahapps/vue-icons'
+import CustomSlider from '@/components/CustomSlider.vue'
 import { useHexStore } from '@/stores/hex'
+import type { FocusOutsideEvent, PointerDownOutsideEvent } from 'reka-ui'
 
 const hex = useHexStore()
+
+function dontClose(e: PointerDownOutsideEvent | FocusOutsideEvent): void {
+  e.preventDefault()
+}
 </script>
 
 <template>
-  <Popover.Content class="SettingsContent" :collision-padding="12" side="bottom" :side-offset="2">
+  <Popover.Content
+    class="SettingsContent"
+    :collision-padding="12"
+    side="bottom"
+    :side-offset="2"
+    @interact-outside="dontClose"
+  >
+    <Popover.Arrow class="SettingsArrow" :rounded="true" />
+    <Popover.Close class="SettingsClose"> <ByClose /> </Popover.Close>
     <h1>Settings</h1>
-    <p>Board Size: {{ hex.boardSize[0] }}</p>
-    <p>FPS: {{ hex.fps[0] }}</p>
-    <p>SPS: {{ hex.sps[0] }}</p>
+    <CustomSlider
+      v-model="hex.boardSize"
+      label="Board Size"
+      :tooltip="hex.cellCount"
+      unit="cells"
+      :max="hex.maxBoardSize"
+      :min="1"
+      :step="1"
+    />
+    <CustomSlider
+      v-model="hex.fps"
+      label="Frames/Sec"
+      unit="frames/sec"
+      :max="144"
+      :min="24"
+      :step="1"
+    />
+    <CustomSlider
+      v-model="hex.sps"
+      label="Steps/Sec"
+      unit="steps/sec"
+      :max="24"
+      :min="1"
+      :step="1"
+    />
     <p>Mirror: {{ hex.mirror[0] }}</p>
     <p>Wrap: {{ hex.wrap[0] }}</p>
     <p>Rules: {{ hex.rules }}</p>
-    <Popover.Close class="SettingsClose"> <ByClose /> </Popover.Close>
-    <Popover.Arrow class="SettingsArrow" :rounded="true" />
   </Popover.Content>
 </template>
 
 <style>
 .SettingsContent {
-  width: 18rem;
+  width: 17.5rem;
+
+  border: 0.125rem outset var(--color-background-mute);
+  border-top: 0.125rem outset var(--color-border-hover);
+  border-radius: 0.25rem;
   background-color: var(--color-background-soft);
-  border-radius: 5px;
+  padding: 0.125rem;
 
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
-.SettingsContent h1 {
-  font-size: 1.25rem;
-  text-align: center;
-  margin: 0.5rem;
-  width: 100%;
+.SettingsArrow {
+  fill: var(--color-border-hover);
 }
+</style>
 
-.SettingsContent p {
-  margin: 0.25rem;
-}
-
+<style scoped>
 .SettingsClose {
   position: fixed;
-  top: 0.25rem;
-  right: 0.25rem;
+  top: 0.625rem;
+  right: 0.5rem;
   height: 1.75rem;
   width: 1.75rem;
 
   color: var(--color-foreground-mute);
   background-color: var(--color-background-mute);
-  border: 2px outset var(--color-border);
-  border-radius: 5px;
+  border: 0.125rem outset var(--color-border);
+  border-radius: 0.25rem;
 
   display: inline-flex;
   align-items: center;
@@ -68,7 +102,8 @@ const hex = useHexStore()
   padding: 2px;
 }
 
-.SettingsArrow {
-  fill: var(--color-background-soft);
+.SettingsContent h1 {
+  font-size: 1.25rem;
+  margin: 0.5rem 0rem;
 }
 </style>

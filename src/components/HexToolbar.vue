@@ -53,8 +53,8 @@ button {
   cursor: pointer;
 
   padding: 1px;
-  border: 2px outset var(--color-border);
-  border-radius: 5px;
+  border: 0.125rem outset var(--color-border);
+  border-radius: 0.5rem;
 
   display: inline-flex;
   align-items: center;

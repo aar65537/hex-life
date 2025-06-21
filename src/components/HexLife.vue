@@ -157,7 +157,7 @@ onMounted(() => {
     if (!game) {
       return
     }
-    if (e.isPrimary && e.buttons == 0) {
+    if (e.isPrimary && e.buttons == 0 && typeof start !== 'undefined') {
       const diffX = Math.abs(e.offsetX - start[0])
       const diffY = Math.abs(e.offsetY - start[1])
       if (diffX < hex.deltaPixels && diffY < hex.deltaPixels) {
@@ -248,7 +248,7 @@ onUnmounted(() => {
   position: fixed;
   width: 18rem;
   height: 2.5rem;
-  top: 20px;
+  top: 12px;
   right: 12px;
 }
 </style>

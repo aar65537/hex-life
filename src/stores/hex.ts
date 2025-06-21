@@ -5,8 +5,8 @@ import type { Game } from '@/scripts/game'
 
 export const useHexStore = defineStore('hex', {
   state: () => ({
-    boardSize: [1000],
-    fps: [90],
+    boardSize: [50],
+    fps: [60],
     sps: [6],
     mirror: [0],
     wrap: [1],
@@ -28,6 +28,7 @@ export const useHexStore = defineStore('hex', {
     deadColor: [0.1, 0.2, 0.35, 1],
     highlightBorderColor: [1.0, 0.8, 0.4, 1],
     marginColor: [0.075, 0.115, 0.25, 1],
+    maxBoardResizeCopy: 100,
   }),
   getters: {
     activeCell(): number[] {
@@ -40,6 +41,11 @@ export const useHexStore = defineStore('hex', {
     drawDot(): number[] {
       const gl = useGLStore()
       return [Number(gl.zoom[0] > -this.zoomFail[0])]
+    },
+    maxBoardSize(): number {
+      const gl = useGLStore()
+      const maxTextureSize = gl.ctx.getParameter(gl.ctx.MAX_TEXTURE_SIZE)
+      return Math.floor(0.5 + Math.sqrt(1 - (4 / 3) * (1 - maxTextureSize ** 2)) / 2)
     },
     rStep(): number {
       return -3 * this.boardSize[0] + 2

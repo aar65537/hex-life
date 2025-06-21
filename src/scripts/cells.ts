@@ -174,6 +174,10 @@ export class CellData {
     const oldCellCount = this.#cellCount
     this.setBoardSize(this.#hex.boardSize[0])
     this.#local = new Uint8Array(this.width * this.height)
+    if (Math.max(oldBoardSize, this.#boardSize) > this.#hex.maxBoardResizeCopy) {
+      this.#hex.stepping = false
+      return
+    }
     for (let index = 0; index < oldCellCount; index++) {
       const [q, r] = indexToAxial(index, oldBoardSize)
       if (inCore(q, r)) {
