@@ -2,6 +2,7 @@
 import { Popover } from 'reka-ui/namespaced'
 import { ByClose } from '@kalimahapps/vue-icons'
 import CustomSlider from '@/components/CustomSlider.vue'
+import CustomSwitch from '@/components/CustomSwitch.vue'
 import { useHexStore } from '@/stores/hex'
 import type { FocusOutsideEvent, PointerDownOutsideEvent } from 'reka-ui'
 
@@ -48,8 +49,8 @@ function dontClose(e: PointerDownOutsideEvent | FocusOutsideEvent): void {
       :min="1"
       :step="1"
     />
-    <p>Mirror: {{ hex.mirror[0] }}</p>
-    <p>Wrap: {{ hex.wrap[0] }}</p>
+    <CustomSwitch v-model="hex.mirror" label="Mirror" tooltip="Display the mirror boards" />
+    <CustomSwitch v-model="hex.wrap" label="Wrap" tooltip="Wrap cells around the board" />
     <p>Rules: {{ hex.rules }}</p>
   </Popover.Content>
 </template>
