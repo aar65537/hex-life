@@ -3,6 +3,7 @@ import { Popover } from 'reka-ui/namespaced'
 import { ByClose } from '@kalimahapps/vue-icons'
 import CustomSlider from '@/components/CustomSlider.vue'
 import CustomSwitch from '@/components/CustomSwitch.vue'
+import RuleBox from '@/components/RuleBox.vue'
 import { useHexStore } from '@/stores/hex'
 import type { FocusOutsideEvent, PointerDownOutsideEvent } from 'reka-ui'
 
@@ -51,7 +52,7 @@ function dontClose(e: PointerDownOutsideEvent | FocusOutsideEvent): void {
     />
     <CustomSwitch v-model="hex.mirror" label="Mirror" tooltip="Display the mirror boards" />
     <CustomSwitch v-model="hex.wrap" label="Wrap" tooltip="Wrap cells around the board" />
-    <p>Rules: {{ hex.rules }}</p>
+    <RuleBox />
   </Popover.Content>
 </template>
 
@@ -72,6 +73,40 @@ function dontClose(e: PointerDownOutsideEvent | FocusOutsideEvent): void {
 
 .SettingsArrow {
   fill: var(--color-border-hover);
+}
+
+.SettingsLabel {
+  width: 50%;
+  text-align: center;
+  color: var(--color-foreground);
+  background-color: var(--color-background-soft);
+  border: 0rem;
+  padding: 0.125rem 0rem;
+}
+
+.SettingsTooltip {
+  color: var(--color-foreground);
+  background-color: var(--color-background-soft);
+  border: 0.125rem outset var(--color-background-mute);
+  border-right: 0.125rem outset var(--color-border-hover);
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.SettingsTooltipArrow {
+  fill: var(--color-border-hover);
+}
+
+.SettingsControl {
+  position: relative;
+  width: 100%;
+  padding-right: 0.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
 }
 </style>
 
@@ -106,5 +141,11 @@ function dontClose(e: PointerDownOutsideEvent | FocusOutsideEvent): void {
 .SettingsContent h1 {
   font-size: 1.25rem;
   margin: 0.5rem 0rem;
+}
+
+.SettingsContainer {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
 }
 </style>

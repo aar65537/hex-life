@@ -19,15 +19,15 @@ const value = computed({
 </script>
 
 <template>
-  <div class="SwitchContainer">
+  <div class="SettingsContainer">
     <Tooltip.Root>
-      <Tooltip.Trigger class="SwitchLabel">{{ props.label }}</Tooltip.Trigger>
-      <Tooltip.Content class="SliderTooltip" side="left">
-        <Tooltip.Arrow class="SliderTooltipArrow" />
+      <Tooltip.Trigger class="SettingsLabel">{{ props.label }}</Tooltip.Trigger>
+      <Tooltip.Content class="SettingsTooltip" side="left">
+        <Tooltip.Arrow class="SettingsTooltipArrow" />
         {{ props.tooltip }}
       </Tooltip.Content>
     </Tooltip.Root>
-    <div class="SwitchControl">
+    <div class="SettingsControl">
       <Switch.Root v-model="value" class="SwitchRoot">
         <Switch.Thumb class="SwitchThumb" />
       </Switch.Root>
@@ -36,29 +36,6 @@ const value = computed({
 </template>
 
 <style scoped>
-.SwitchContainer {
-  width: 100%;
-  display: flex;
-  align-items: stretch;
-}
-
-.SwitchLabel {
-  width: 50%;
-  text-align: center;
-  color: var(--color-foreground);
-  background-color: var(--color-background-soft);
-  border: 0rem;
-  padding: 0.125rem 0rem;
-}
-
-.SwitchControl {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-right: 0.5rem;
-}
-
 .SwitchRoot {
   position: relative;
   height: 50%;
