@@ -38,8 +38,8 @@ const value = computed({
 <style scoped>
 .SwitchRoot {
   position: relative;
-  height: 50%;
-  width: 1.25rem;
+  height: 62.5%;
+  width: 1.5rem;
   background-color: var(--color-background-mute);
   border-radius: 9999px;
 }
@@ -50,9 +50,9 @@ const value = computed({
 
 .SwitchThumb {
   display: block;
-  height: 0.4375rem;
+  height: 0.5rem;
   width: 0.5rem;
-  transform: translate(-0.225rem, -0.0625rem);
+  transform: translate(-0.2rem, -0.015rem);
   background-color: var(--color-foreground-soft);
   border-radius: 9999px;
   transition: transform 100ms;
@@ -60,6 +60,6 @@ const value = computed({
 }
 
 .SwitchThumb[data-state='checked'] {
-  transform: translate(0.225rem, -0.0625rem);
+  transform: translate(0.475rem, -0.015rem);
 }
 </style>
